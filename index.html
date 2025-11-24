@@ -1,52 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Clock</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Arial', sans-serif;
-        }
+    <title>InfVis - A3</title>
 
-        .clock-container {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-        .clock {
-            font-size: 72px;
-            font-weight: bold;
-            color: #fff;
-            text-align: center;
-            letter-spacing: 3px;
-            font-family: 'Courier New', monospace;
-            min-width: 400px;
-        }
+    <!-- Tailwind Elements -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
 
-        .date {
-            font-size: 24px;
-            color: rgba(255, 255, 255, 0.8);
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
+    <!-- D3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 </head>
-<body>
-    <div class="clock-container">
-        <div class="clock" id="clock">00:00:00</div>
-        <div class="date" id="date"></div>
+
+<body class="bg-gray-900 text-white p-6">
+
+    <header>
+        <div class="lg:flex lg:items-center lg:justify-between bg-gray-800 p-6 rounded-lg shadow-lg">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl sm:text-3xl font-bold">Back End Developer</h2>
+                <div class="mt-2 flex flex-wrap sm:flex-row sm:space-x-6 text-gray-400 text-sm">
+                    <div class="flex items-center mt-2">
+                        <span class="mr-1.5">🕒</span> Full-time
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <span class="mr-1.5">🏠</span> Remote
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <span class="mr-1.5">💰</span> $120k–$140k
+                    </div>
+                    <div class="flex items-center mt-2">
+                        <span class="mr-1.5">📅</span> Closing on January 9, 2020
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 flex lg:mt-0 lg:ml-4 space-x-3">
+                <button
+                    class="bg-indigo-500 hover:bg-indigo-400 px-3 py-2 rounded-md text-sm font-semibold">Publish</button>
+                <button class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-md text-sm font-semibold">Edit</button>
+            </div>
+        </div>
+        <div>
+            <p class="mt-4 text-gray-400">Use the brush below to filter the data by accession year.</p>
+            <p>Selected Time Period: <span id="timePeriod"></span></p>
+        </div>
+    </header>
+
+    <!-- d3 Chart -->
+    <div id="chart" class="mt-8 mx-auto flex justify-center">
+        <div id="loadingChart" class="justify-center flex-row mt-8">
+            <div class="flex justify-center mb-8">
+                <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+                    role="status">
+                    <span
+                        class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+                </div>
+            </div>
+            <h2>Loading Chart Data...</h2>
+        </div>
     </div>
-    <script src="script.js"></script>
+    <!-- d3 Chart END -->
+
+    <script type="module" src="script.js"></script>
 </body>
+
 </html>
