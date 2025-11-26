@@ -1,14 +1,24 @@
-
 <head>
-        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 
 </head>
+
 <body>
     <header>
         <h1 class="text-3xl font-bold text-center my-6">Pie Chart Example</h1>
     </header>
 
+    <select id="fruitSelector">
+        <option value="apple" selected>Apple</option>
+        <option value="orange">Orange</option>
+    </select>
+
+    <button id="refreshPieChartBtn">Refresh</button>
+
     <div id="pieChart"></div>
 
     <script type="module" src="scripts/pieChart.js"></script>
+
+
+
 </body>

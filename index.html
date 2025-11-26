@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <title>InfVis - A3</title>
 
     <link rel="stylesheet" href="style.css">
@@ -56,11 +57,21 @@
     <div id="charts" class="grid grid-cols-3 gap-8">
 
 
-        <div id="pieChart" class="mx-auto "></div>
+        <div id="pieChartContainer" class="mx-auto ">
+            <select id="pieChartSelector">
+                <option value="apple" selected>Apple</option>
+                <option value="orange">Orange</option>
+            </select>
+
+            <button id="refreshPieChartBtn">Refresh</button>
+            <div id="pieChart"></div>
+        </div>
 
         <div id="lineChart" class="mx-auto col-span-2"></div>
 
-        <div id="timelineChart" class="mx-auto flex justify-center col-span-3 w-full">
+        <div id="timelineChart" class="mx-auto flex justify-center col-span-3 w-full fixed"
+            style="bottom: 0.5rem; left: 0;"
+        >
             <div id="loadingChart" class="justify-center flex-row mt-8">
                 <div class="flex justify-center mb-8">
                     <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
@@ -77,7 +88,15 @@
 
     <div id="objectShowcase" class="w-full overflow-x-auto flex gap-6"></div>
 
+    <!-- script for loading the data -->
     <script type="module" src="script.js"></script>
+
+    <!-- script to make selection with brush -->
+    <script type="module" src="scripts/brush.js"></script>
+
+    <!-- pie chart script -->
+    <script type="module" src="scripts/pieChart.js"></script>
+
 </body>
 
 </html>

@@ -1,11 +1,5 @@
 
 
-const aaplRaw = await d3.csv("../aapl.csv", d3.autoType);
-const aapl = aaplRaw.slice(0, 20);
-const aapl2 = aapl.map(item => ({ ...item, close: item.close + 25. }))
-
-console.log(aapl);
-console.log(aapl2)
 
 const width = 500;
 const height = 500;
@@ -14,6 +8,11 @@ const marginRight = 30;
 const marginBottom = 30;
 const marginLeft = 40;
 
+
+const series = [
+    { name: "Apples", color: "steelblue" },
+    { name: "Bananas", color: "orange" }
+];
 
 
 
@@ -36,11 +35,12 @@ const svg = d3.select("#lineChart")
     .attr("viewBox", [0, 0, width, height])
     .attr("style", "border:5px solid blue; background-color:white")
 
+
 let x = null
 let y = null
 let line = null
 
-const newLineChartData = (data) => {
+export const initLineChart = (data) => {
 
     if (Array.isArray(data) && data.every(Array.isArray)) {
         const flat = data.flat()
@@ -57,12 +57,14 @@ const newLineChartData = (data) => {
 
 }
 
-let isLineChartRefreshing = false
-const updateLineChart = (data) => {
-    console.log("updating", data)
+export let isLineChartRefreshing = false
+export const updateLineChart = (data) => {
+
     isLineChartRefreshing = true
 
     svg.selectAll("*").remove()
+
+    const legend = addLegendLineChart(series)
 
     const vLine = svg.append("line")
         .attr("stroke", "black")
@@ -178,62 +180,53 @@ const updateLineChart = (data) => {
             .on("end", (d, i) => {
                 isLineChartRefreshing = false
             })
-            
+
 
     }
+
+    // After rendering everthing raise legend on top
+    legend.raise()
 
 }
 
-const dataToPlot = [aapl, aapl2]
-newLineChartData(dataToPlot)
-updateLineChart(dataToPlot)
 
 
-const refreshBtnE = document.getElementById("refreshBtn")
-refreshBtnE.addEventListener("click", e => {
-    console.log(isLineChartRefreshing)
-    if (!isLineChartRefreshing) {
-        console.log("refreshing Chart")
-        updateLineChart(dataToPlot)
-    }
-})
+const addLegendLineChart = (data) => {
 
 
-const series = [
-  { name: "Apples", color: "steelblue" },
-  { name: "Bananas", color: "orange" }
-];
+    const legend = svg.append("g")
+        .attr("transform", `translate(${width - marginLeft - marginRight - 20},20)`)  // adjust position
+        .attr("class", "legend")
+        .raise()
 
-const legend = svg.append("g")
-  .attr("transform", `translate(${width-marginLeft-marginRight-20},20)`)  // adjust position
-  .attr("class", "legend");
+    const legendBg = legend.append("rect")
+        .attr("fill", "#c34040ff")
 
-const legendBg = legend.append("rect")
-    .attr("fill", "#c34040ff")
+    const legendItem = legend.selectAll(".legend-item")
+        .data(data)
+        .enter()
+        .append("g")
+        .attr("class", "legend-item")
+        .attr("transform", (d, i) => `translate(0, ${i * 20})`);
 
+    // Add legend color boxes
+    legendItem.append("rect")
+        .attr("width", 12)
+        .attr("height", 12)
+        .attr("fill", d => d.color);
 
-const legendItem = legend.selectAll(".legend-item")
-  .data(series)
-  .enter()
-  .append("g")
-  .attr("class", "legend-item")
-  .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+    // Add legend text
+    legendItem.append("text")
+        .attr("x", 18)
+        .attr("y", 10)
+        .text(d => d.name)
+        .style("font-size", "12px");
 
-// Add legend color boxes
-legendItem.append("rect")
-  .attr("width", 12)
-  .attr("height", 12)
-  .attr("fill", d => d.color);
+    const legendBoundingBox = legend.node().getBBox()
+    legendBg
+        .attr("width", legendBoundingBox.width + 10)
+        .attr("height", legendBoundingBox.height + 10)
+        .attr("transform", `translate(-5, -5)`)  // adjust position
 
-// Add legend text
-legendItem.append("text")
-  .attr("x", 18)
-  .attr("y", 10)
-  .text(d => d.name)
-  .style("font-size", "12px");
-
-const legendBoundingBox = legend.node().getBBox()
-legendBg
-  .attr("width", legendBoundingBox.width + 10)
-  .attr("height", legendBoundingBox.height + 10)
-  .attr("transform", `translate(-5, -5)`)  // adjust position
+    return legend
+}

@@ -1,17 +1,46 @@
-
 <head>
-        <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 
 </head>
+
 <body>
     <header>
         <h1 class="text-3xl font-bold text-center my-6">Line Chart Example</h1>
     </header>
+
+
+
     <button id="refreshBtn">Refresh</button>
     <div id="lineChart"></div>
     <div id="tooltipLineChart"></div>
 
     <script type="module" src="scripts/lineChart.js"></script>
+    <script type="module">
+
+        const aaplRaw = await d3.csv("./aapl.csv", d3.autoType);
+        const aapl = aaplRaw.slice(0, 20);
+        const aapl2 = aapl.map(item => ({ ...item, close: item.close + 25. }))
+
+        console.log(aapl);
+        console.log(aapl2)
+
+        import { initLineChart, updateLineChart, isLineChartRefreshing } from "./scripts/lineChart.js"
+        const data = [aapl, aapl2]
+        initLineChart(data)
+        updateLineChart(data)
+
+        const refreshBtnE = document.getElementById("refreshBtn")
+        refreshBtnE.addEventListener("click", e => {
+            if (!isLineChartRefreshing) {
+                console.log("Refreshing line chart")
+                updateLineChart(data)
+            } else {
+                console.log("Already refreshing line chart ...")
+            }
+        })
+
+
+
+    </script>
+
 </body>
-
-
