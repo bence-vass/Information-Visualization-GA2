@@ -16,6 +16,8 @@ const marginLeft = 40;
 
 
 
+
+
 const tooltip = d3.select("#tooltipLineChart")
     .append("div")
     .style("position", "absolute")
@@ -67,7 +69,8 @@ const updateLineChart = (data) => {
         .attr("stroke-width", 1)
         .attr("y1", marginTop)
         .attr("y2", height - marginBottom)
-        .style("opacity", 0); // hidden initially
+        .style("opacity", 0) // hidden initially
+        .style("z-index", 9)
 
     svg.append("g")
         .attr("transform", `translate(0,${height - marginBottom})`)
@@ -94,13 +97,16 @@ const updateLineChart = (data) => {
             .attr("r", 0)
             .attr("fill", "red")
             .attr("stroke", "black")
+            .style("z-index", 10)
             .on("mouseover", function (event, d) {
                 d3.select(this)
+                    .raise()
                     .transition()
                     .duration(250)
                     .attr("r", 12); // increase radius
 
-                tooltip.transition()
+                tooltip
+                    .transition()
                     .duration(100)
                     .style("opacity", 1);
                 tooltip.html(`Date: ${d.date.toLocaleDateString()}<br>Close: $${d.close}`)
@@ -157,7 +163,8 @@ const updateLineChart = (data) => {
             .attr("fill", "none")
             .attr("stroke-width", 1.5)
             .attr("stroke", "steelblue")
-            .attr("d", line);
+            .attr("d", line)
+            .lower()
 
         const totalLength = path.node().getTotalLength();
 
@@ -171,6 +178,7 @@ const updateLineChart = (data) => {
             .on("end", (d, i) => {
                 isLineChartRefreshing = false
             })
+            
 
     }
 
@@ -189,3 +197,43 @@ refreshBtnE.addEventListener("click", e => {
         updateLineChart(dataToPlot)
     }
 })
+
+
+const series = [
+  { name: "Apples", color: "steelblue" },
+  { name: "Bananas", color: "orange" }
+];
+
+const legend = svg.append("g")
+  .attr("transform", `translate(${width-marginLeft-marginRight-20},20)`)  // adjust position
+  .attr("class", "legend");
+
+const legendBg = legend.append("rect")
+    .attr("fill", "#c34040ff")
+
+
+const legendItem = legend.selectAll(".legend-item")
+  .data(series)
+  .enter()
+  .append("g")
+  .attr("class", "legend-item")
+  .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+
+// Add legend color boxes
+legendItem.append("rect")
+  .attr("width", 12)
+  .attr("height", 12)
+  .attr("fill", d => d.color);
+
+// Add legend text
+legendItem.append("text")
+  .attr("x", 18)
+  .attr("y", 10)
+  .text(d => d.name)
+  .style("font-size", "12px");
+
+const legendBoundingBox = legend.node().getBBox()
+legendBg
+  .attr("width", legendBoundingBox.width + 10)
+  .attr("height", legendBoundingBox.height + 10)
+  .attr("transform", `translate(-5, -5)`)  // adjust position
