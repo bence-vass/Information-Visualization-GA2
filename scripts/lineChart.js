@@ -1,7 +1,7 @@
 
+import { SELECTED_DATA } from "./brush.js";
 
-
-const width = 500;
+const width = 700;
 const height = 500;
 const marginTop = 20;
 const marginRight = 30;
@@ -9,12 +9,66 @@ const marginBottom = 30;
 const marginLeft = 40;
 
 
-const series = [
-    { name: "Apples", color: "steelblue" },
-    { name: "Bananas", color: "orange" }
-];
+export const getLineData = (selectedData, topN) => {
+    if (!selectedData || selectedData.length === 0) return [];
+    topN = (topN !== null) ? topN : 10
+
+    // Getting top N categories
+    const grouppedData = d3.rollups(selectedData,
+        v => d3.sum(v, d => 1),
+        d => d.ObjectName
+    ).map(([key, value]) => ({ ObjectName: key, Count: value }));
+
+    const sorted = grouppedData.sort((a, b) => d3.descending(a.Count, b.Count));
+    const shift = 5
+    const topCategories = sorted.slice(
+        // magic of js
+        Number(0) + Number(shift),
+        Number(topN) + Number(shift)
+    ).map(d => d.ObjectName)
+
+    // Filtering the data ( keep only from topN categories )
+    const filteredData = selectedData.filter(d => topCategories.includes(d.ObjectName))
+
+    const lineData = d3.rollups(filteredData,
+        v => d3.sum(v, d => 1),
+        d => d.ObjectName,
+        d => d.AccessionYear
+    ).map(
+        ([objName, yearGroup]) => {
+
+            const sortedYear = yearGroup.map(([year, count]) => ({
+                Year: new Date(Date.UTC(year, 0, 1)),
+                Count: count
+            })).sort((a, b) => a.Year - b.Year)
+            
+
+            let commulative = 0;
+            const commulativeData = sortedYear.map(d => {
+                commulative += d.Count
+                return {
+                    Year: d.Year,
+                    Count: commulative
+                }
+            })
+            return {
+                name: objName,
+                value: commulativeData
+            }
+        }
+    )
+    
+
+    const commulativeData = 
 
 
+
+
+
+    console.log(lineData)
+
+    return lineData
+}
 
 
 const tooltip = d3.select("#tooltipLineChart")
@@ -22,53 +76,59 @@ const tooltip = d3.select("#tooltipLineChart")
     .style("position", "absolute")
     .style("background", "rgba(0,0,0,0.7)")
     .style("color", "white")
-    .style("padding", "5px 10px")
-    .style("border-radius", "4px")
+    .style("padding", "0.2rem 0.5rem")
+    .style("border-radius", "5px")
     .style("pointer-events", "none") // ignore mouse events
     .style("opacity", 0); // hidden initially
 
 
 const svg = d3.select("#lineChart")
     .append("svg")
+    .attr("class", "mx-auto")
     .attr("width", width)
     .attr("height", height)
     .attr("viewBox", [0, 0, width, height])
-    .attr("style", "border:5px solid blue; background-color:white")
+// .attr("style", "border:5px solid blue; background-color:aqua")
 
 
 let x = null
 let y = null
 let line = null
+const color = d3.scaleOrdinal(d3.schemeObservable10);
+
+
+const lineChartTopInputEl = document.getElementById("lineChartTopInput")
+export let NO_CATEGORIES_LINE = lineChartTopInputEl.value
 
 export const initLineChart = (data) => {
+    const flatData = data.flatMap(obj => obj.value)
 
-    if (Array.isArray(data) && data.every(Array.isArray)) {
-        const flat = data.flat()
-        data = flat
-    }
-
-    x = d3.scaleUtc(d3.extent(data, d => d.date), [marginLeft, width - marginRight]);
-    y = d3.scaleLinear(d3.extent(data, d => d.close), [height - marginBottom, marginTop]);
-
+    x = d3.scaleUtc(d3.extent(flatData, d => d.Year), [marginLeft, width - marginRight]);
+    y = d3.scaleLinear([0, d3.max(flatData, d => d.Count)], [height - marginBottom, marginTop]);
 
     line = d3.line()
-        .x(d => x(d.date))
-        .y(d => y(d.close));
+        .x(d => x(d.Year))
+        .y(d => y(d.Count));
 
 }
 
 export let isLineChartRefreshing = false
-export const updateLineChart = (data) => {
+export const updateLineChart = (data, topN) => {
+
+    data = getLineData(data, topN)
+
+    initLineChart(data)
 
     isLineChartRefreshing = true
 
     svg.selectAll("*").remove()
 
-    const legend = addLegendLineChart(series)
+    const legend = addLegendLineChart(data)
 
     const vLine = svg.append("line")
-        .attr("stroke", "black")
+        .attr("stroke", "#ffffffb4")
         .attr("stroke-width", 1)
+        .attr("stroke-dasharray", "5")
         .attr("y1", marginTop)
         .attr("y2", height - marginBottom)
         .style("opacity", 0) // hidden initially
@@ -83,41 +143,41 @@ export const updateLineChart = (data) => {
         .attr("transform", `translate(${marginLeft},0)`)
         .call(d3.axisLeft(y).ticks(height / 40))
 
-    if (data.length > 0 && typeof data[0] === 'object' && !Array.isArray(data[0])) {
-        data = [data]; // wrap in an array
-    }
 
-    data.forEach(item => {
-        console.log("item", item)
+    data.forEach((item, i) => {
+        const itemIxd = i
+        const category = item.name
+        const itemData = item.value.sort((a, b) => d3.ascending(a.Year, b.Year))
+
         const circles = svg.append("g")
             .selectAll("circle")
-            .data(item)
+            .data(itemData)
             .enter()
             .append("circle")
-            .attr("cx", d => x(d.date))
-            .attr("cy", d => y(d.close))
+            .attr("cx", d => x(d.Year))
+            .attr("cy", d => y(d.Count))
             .attr("r", 0)
-            .attr("fill", "red")
-            .attr("stroke", "black")
+            .attr("fill", color(itemIxd))
+            .attr("stroke", color(itemIxd))
             .style("z-index", 10)
             .on("mouseover", function (event, d) {
                 d3.select(this)
                     .raise()
                     .transition()
                     .duration(250)
-                    .attr("r", 12); // increase radius
+                    .attr("r", 9); // increase radius
 
                 tooltip
                     .transition()
                     .duration(100)
                     .style("opacity", 1);
-                tooltip.html(`Date: ${d.date.toLocaleDateString()}<br>Close: $${d.close}`)
+                tooltip.html(`Item: ${category}<br>Date: ${d.Year.getUTCFullYear()}<br>Count: ${d.Count}`)
                     .style("left", (event.pageX + 10) + "px")
                     .style("top", (event.pageY - 25) + "px");
 
                 vLine
-                    .attr("x1", x(d.date))
-                    .attr("x2", x(d.date))
+                    .attr("x1", x(d.Year))
+                    .attr("x2", x(d.Year))
                     .transition()
                     .duration(150)
                     .style("opacity", 1);
@@ -146,11 +206,15 @@ export const updateLineChart = (data) => {
             .duration(500)
             .attr("r", 4)
             .on("end", (d, i) => {
-                if (i == item.length - 1) {
-                    console.log("drawLine called")
-                    drawLine(item)
+                if (i == itemData.length - 1) {
+                    drawLine(itemData, color(itemIxd))
                 }
             })
+
+        setTimeout(() => {
+            console.log("Finished Refreshing")
+            isLineChartRefreshing = false
+        }, 1000)
 
     });
 
@@ -158,13 +222,13 @@ export const updateLineChart = (data) => {
 
 
 
-    const drawLine = (data) => {
-        console.log("draw")
+    const drawLine = (data, color) => {
+
         const path = svg.append("path")
             .datum(data)
             .attr("fill", "none")
             .attr("stroke-width", 1.5)
-            .attr("stroke", "steelblue")
+            .attr("stroke", color)
             .attr("d", line)
             .lower()
 
@@ -177,11 +241,6 @@ export const updateLineChart = (data) => {
             .duration(500)
             .ease(d3.easeLinear)
             .attr("stroke-dashoffset", 0)
-            .on("end", (d, i) => {
-                isLineChartRefreshing = false
-            })
-
-
     }
 
     // After rendering everthing raise legend on top
@@ -195,12 +254,12 @@ const addLegendLineChart = (data) => {
 
 
     const legend = svg.append("g")
-        .attr("transform", `translate(${width - marginLeft - marginRight - 20},20)`)  // adjust position
+        .attr("transform", `translate(${ Number(marginLeft) + 20},20)`)  // adjust position
         .attr("class", "legend")
         .raise()
 
     const legendBg = legend.append("rect")
-        .attr("fill", "#c34040ff")
+        .attr("fill", "none")
 
     const legendItem = legend.selectAll(".legend-item")
         .data(data)
@@ -213,12 +272,13 @@ const addLegendLineChart = (data) => {
     legendItem.append("rect")
         .attr("width", 12)
         .attr("height", 12)
-        .attr("fill", d => d.color);
+        .attr("fill", (d, i) => color(i));
 
     // Add legend text
     legendItem.append("text")
         .attr("x", 18)
         .attr("y", 10)
+        .attr("fill", "#fff")
         .text(d => d.name)
         .style("font-size", "12px");
 
@@ -230,3 +290,22 @@ const addLegendLineChart = (data) => {
 
     return legend
 }
+
+
+
+const refreshPieChartBtnEl = document.getElementById("refreshLineChartBtn")
+refreshPieChartBtnEl.addEventListener("click", e => {
+    // console.log("refresh")
+    if (isLineChartRefreshing === true) {
+        console.log("Already Refreshing...")
+        return
+    }
+    updateLineChart(SELECTED_DATA, NO_CATEGORIES_LINE)
+})
+
+lineChartTopInputEl.addEventListener("change", e => {
+    // console.log("changing top n line")
+    NO_CATEGORIES_LINE = e.target.value
+    updateLineChart(SELECTED_DATA, NO_CATEGORIES_LINE)
+})
+

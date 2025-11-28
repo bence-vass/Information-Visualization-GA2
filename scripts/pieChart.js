@@ -20,7 +20,17 @@ const getPieData = (selectedData, topN) => {
     return pieData;
 }
 
-export let NO_CATEGORIES = 12
+
+const pieChartTopInputEl = document.getElementById("pieChartTopInput")
+export let NO_CATEGORIES_PIE = pieChartTopInputEl.value
+
+pieChartTopInputEl.addEventListener("change", e => {
+    // console.log("changing top n line")
+    NO_CATEGORIES_PIE = e.target.value
+    updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
+})
+
+
 
 const width = 700
 const height = 300
@@ -32,6 +42,7 @@ const offsetX = (-width / 2) + 200
 const offsetY = (-height / 2)
 const svg = d3.select("#pieChart")
     .append("svg")
+    .attr("class", "mx-auto")
     .attr("width", width)
     .attr("height", height)
     .attr("viewBox", [offsetX, offsetY, width, height])
@@ -53,7 +64,9 @@ export const updatePieChart = (rawData, topN) => {
     // Clean svg
     svg.selectAll("*").remove()
 
-    const path = svg.selectAll("path")
+    const path = svg.append("g")
+        .attr("class", "pieArcs")
+        .selectAll("path")
         .data(pie(data))
         .join("path")
         .attr("fill", (d, i) => color(i))
@@ -80,7 +93,7 @@ export const updatePieChart = (rawData, topN) => {
     }
 
     const addLegendPieChart = (data) => {
-        const labelGroup = svg.append("g")
+        const labelGroup = svg.append("g").attr("class", "pieLegend")
 
         const labels = labelGroup.selectAll(".legend-item")
             .data(pie(data))
@@ -128,17 +141,6 @@ export const updatePieChart = (rawData, topN) => {
 
 const refreshPieChartBtnEl = document.getElementById("refreshPieChartBtn")
 refreshPieChartBtnEl.addEventListener("click", e => {
-    updatePieChart(SELECTED_DATA, NO_CATEGORIES)
+    updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
 })
-
-
-
-// const selectElement = document.getElementById('pieChartSelector');
-
-// selectElement.addEventListener('change', function (event) {
-//     const selectedValue = event.target.value;
-//     console.log('Selected value:', selectedValue);
-//     console.log(mapping[selectedValue])
-//     updatePieChart(mapping[selectedValue] , )
-// });
 

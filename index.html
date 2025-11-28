@@ -19,83 +19,176 @@
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 </head>
 
-<body class="bg-gray-900 text-white p-6">
+<body class="bg-gray-900 text-white p-6" style="margin-bottom: 4rem;">
 
     <header>
         <div class="lg:flex lg:items-center lg:justify-between bg-gray-800 p-6 rounded-lg shadow-lg">
             <div class="flex-1 min-w-0">
-                <h2 class="text-2xl sm:text-3xl font-bold">Back End Developer</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold">TU Wien Information Visualization – Assignment 3</h2>
                 <div class="mt-2 flex flex-wrap sm:flex-row sm:space-x-6 text-gray-400 text-sm">
                     <div class="flex items-center mt-2">
-                        <span class="mr-1.5">🕒</span> Full-time
-                    </div>
-                    <div class="flex items-center mt-2">
-                        <span class="mr-1.5">🏠</span> Remote
-                    </div>
-                    <div class="flex items-center mt-2">
-                        <span class="mr-1.5">💰</span> $120k–$140k
-                    </div>
-                    <div class="flex items-center mt-2">
-                        <span class="mr-1.5">📅</span> Closing on January 9, 2020
+                        Data Source:
+                        <a href="https://github.com/metmuseum/openaccess" class="text-indigo-400 hover:underline ml-1">
+                            The Metropolitan Museum of Art Open Access CSV
+                        </a>
                     </div>
                 </div>
             </div>
 
             <div class="mt-5 flex lg:mt-0 lg:ml-4 space-x-3">
-                <button
-                    class="bg-indigo-500 hover:bg-indigo-400 px-3 py-2 rounded-md text-sm font-semibold">Publish</button>
-                <button class="bg-white/10 hover:bg-white/20 px-3 py-2 rounded-md text-sm font-semibold">Edit</button>
+                <a href="https://github.com/bence-vass/Information-Visualization-A3" >
+                <button class="bg-indigo-500 hover:bg-indigo-400 px-3 py-2 rounded-md text-sm font-semibold">
+                    View GitHub
+                </button>
+                </a>
             </div>
         </div>
-        <div>
-            <p class="mt-4 text-gray-400">Use the brush below to filter the data by accession year.</p>
-            <p>Selected Time Period: <span id="timePeriod"></span></p>
+
+        <div class="bg-gray-900 p-6 rounded-2xl mt-6 mb-8">
+            <p class="text-gray-400 mb-2">
+                Use the brush below to explore acquisitions by year.
+            </p>
+            <p class="text-gray-100 font-medium">
+                Selected Time Period: <span id="timePeriod" class="text-blue-400"></span>
+            </p>
         </div>
+
+
     </header>
 
-    <!-- d3 Charts -->
-    <div id="charts" class="grid grid-cols-3 gap-8">
+    <!-- Grid -->
+    <div id="charts" class="grid grid-cols-3 gap-4">
 
+        <!-- Row 1 -->
+        <!-- Row 1 - Cell 1 -->
+        <div class="col-span-2">
+            <div id="pieChartContainer" class="mx-auto ">
 
-        <div id="pieChartContainer" class="mx-auto ">
-            <select id="pieChartSelector">
-                <option value="apple" selected>Apple</option>
-                <option value="orange">Orange</option>
-            </select>
-
-            <button id="refreshPieChartBtn">Refresh</button>
-            <div id="pieChart"></div>
-        </div>
-
-        <div id="lineChart" class="mx-auto col-span-2"></div>
-
-        <div id="timelineChart" class="mx-auto flex justify-center col-span-3 w-full fixed"
-            style="bottom: 0.5rem; left: 0;"
-        >
-            <div id="loadingChart" class="justify-center flex-row mt-8">
-                <div class="flex justify-center mb-8">
-                    <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
-                        role="status">
-                        <span
-                            class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
-                    </div>
+                <div style="display: flex;">
+                    <input id="pieChartTopInput" type="number" min="3" max="25" value="12"
+                        class="mx-4 w-20 text-center px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 dark:bg-gray-900" />
+                    <button id="refreshPieChartBtn" style="border: #fff solid 2px"
+                        class="flex items-center justify-center p-2 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-transform duration-200">
+                        <!-- Refresh/arrow icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#fff"
+                            version="1.1" id="Capa_1" width="24px" height="24px" viewBox="0 0 547.842 547.842"
+                            xml:space="preserve">
+                            <g>
+                                <path
+                                    d="M506.367,293.097h-43.836c-11.092,0-20.043,8.874-20.426,19.813c-9.104,84.609-80.707,150.476-167.84,150.476   c-93.253,0-168.759-75.429-168.759-168.529c0-92.258,76.041-167.229,168.071-168.529v27.387c0,12.47,8.874,18.054,19.737,12.47   l140.684-71.986c10.863-5.585,10.863-14.612,0-20.196L293.314,2.168c-10.863-5.584-19.737,0-19.737,12.393v27.616   C134.882,43.478,21.127,156.239,21.127,295.01c0,139.612,113.296,252.832,253.139,252.832   c133.723,0,243.27-103.504,252.449-234.778C526.791,302.048,517.535,293.097,506.367,293.097z" />
+                            </g>
+                        </svg>
+                    </button>
                 </div>
-                <h2>Loading Chart Data...</h2>
+                <div id="pieChart"></div>
             </div>
         </div>
-    </div>
-    <!-- d3 Chart END -->
+        <!-- Row 1 - Cell 2 -->
 
-    <div id="objectShowcase" class="w-full overflow-x-auto flex gap-6"></div>
+        <div class="col-span-1 p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-4 text-white">Discover Our Collection</h2>
+            <p class="text-white leading-relaxed">
+                Explore the fascinating range of artifacts and objects our museum has acquired over the selected time
+                period.
+                The accompanying pie chart illustrates the proportion of items obtained, offering a clear visual
+                overview of
+                our growing collection. Each segment represents a different category or type of artifact, giving
+                visitors insight
+                into the diversity and focus of our acquisitions.
+            </p>
+            <p class="mt-4 text-white leading-relaxed">
+                Whether you are curious about historical relics, artistic masterpieces, or cultural treasures, this
+                chart
+                provides a snapshot of the richness of our collection and highlights the museum’s dedication to
+                preserving
+                history and culture.
+            </p>
+        </div>
+        <!-- Row 1 END-->
+
+        <!-- Row 2 -->
+        <!-- Row 2 - Cell 1 -->
+        <div class="col-span-1 p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-4 text-white">Track Our Growth Over Time</h2>
+            <p class="text-white leading-relaxed">
+                The line chart shows the number of new acquisitions in each category for every year, allowing you to see
+                how our museum has developed over time. It highlights trends in our collection and the increasing
+                diversity of artifacts we acquire.
+            </p>
+            <p class="mt-4 text-white leading-relaxed">
+                Additionally, the chart reflects the number of new and interesting items put on display each year,
+                giving visitors a sense of how our exhibitions evolve and what fresh treasures they can explore during
+                each visit.
+            </p>
+        </div>
+        <!-- Row 2 - Cell 1 END -->
+
+        <!-- Row 2 - Cell 2 -->
+        <div class="col-span-2">
+            <div style="display: flex;">
+                <input id="lineChartTopInput" type="number" min="3" max="20" value="7"
+                    class="mx-4 w-20 text-center px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 dark:bg-gray-900" />
+                <button id="refreshLineChartBtn" style="border: #fff solid 2px"
+                    class="flex items-center justify-center p-2 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-transform duration-200">
+                    <!-- Refresh/arrow icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#fff"
+                        version="1.1" id="Capa_1" width="24px" height="24px" viewBox="0 0 547.842 547.842"
+                        xml:space="preserve">
+                        <g>
+                            <path
+                                d="M506.367,293.097h-43.836c-11.092,0-20.043,8.874-20.426,19.813c-9.104,84.609-80.707,150.476-167.84,150.476   c-93.253,0-168.759-75.429-168.759-168.529c0-92.258,76.041-167.229,168.071-168.529v27.387c0,12.47,8.874,18.054,19.737,12.47   l140.684-71.986c10.863-5.585,10.863-14.612,0-20.196L293.314,2.168c-10.863-5.584-19.737,0-19.737,12.393v27.616   C134.882,43.478,21.127,156.239,21.127,295.01c0,139.612,113.296,252.832,253.139,252.832   c133.723,0,243.27-103.504,252.449-234.778C526.791,302.048,517.535,293.097,506.367,293.097z" />
+                        </g>
+                    </svg>
+                </button>
+            </div>
+            <div id="tooltipLineChart"></div>
+            <div id="lineChart" class="mx-auto col-span-2"></div>
+
+        </div>
+        <!-- Row 2 - Cell 2 END -->
+        <!-- Row 2 END-->
+
+        <!-- Row 3 -->
+        <div class="bg-blue-400 col-span-3">
+            <div id="objectShowcase" class="w-full overflow-x-auto flex gap-6">asd</div>
+        </div>
+        <!-- Row 3 END-->
+
+
+
+
+
+
+
+        <div id="timelineChart" class="mx-auto fixed justify-center col-span-3 w-full fixed bg-white dark:bg-gray-900"
+            style="bottom: 0; left: 0; padding-bottom: 0.5rem; padding-top: 0.5rem;"></div>
+
+        <!-- 
+        <div id="loadingChart" class="justify-center flex-row mt-8">
+            <div class="flex justify-center mb-8">
+                <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+                    role="status">
+                    <span
+                        class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+                </div>
+            </div>
+            <h2>Loading Chart Data...</h2>
+        </div> -->
+    </div>
+    <!-- Grid END -->
+
 
     <!-- script for loading the data -->
     <script type="module" src="script.js"></script>
 
-    <!-- script to make selection with brush -->
+    <!-- script to make selection with brush ( re-render callback on other charts )-->
     <script type="module" src="scripts/brush.js"></script>
 
     <!-- pie chart script -->
     <script type="module" src="scripts/pieChart.js"></script>
+
+    <!-- line chart script -->
+    <script type="module" src="scripts/lineChart.js"></script>
 
 </body>
 

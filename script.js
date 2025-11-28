@@ -15,7 +15,7 @@ const dataImportFn = (d) => {
         // ...d, // keep all original data
         "AccessionYear": parseInt(d.AccessionYear),
         "ObjectName": d["Object Name"].toString(),
-        "objectID": d["Object ID"].toString(),
+        "ObjectID": d["Object ID"].toString(),
     }
 }
 
