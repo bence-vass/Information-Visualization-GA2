@@ -17,14 +17,17 @@
 
     <!-- D3.js -->
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+
+    <!-- d3-cloud for word cloud -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.7/d3.layout.cloud.min.js"></script>
 </head>
 
-<body class="bg-gray-900 text-white p-6" style="margin-bottom: 4rem;">
+<body class="bg-gray-900 text-white p-6" style="margin-bottom: 5rem;">
 
     <header>
         <div class="lg:flex lg:items-center lg:justify-between bg-gray-800 p-6 rounded-lg shadow-lg">
             <div class="flex-1 min-w-0">
-                <h2 class="text-2xl sm:text-3xl font-bold">TU Wien Information Visualization – Assignment 3</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold">TU Wien Information Visualization - Assignment 3</h2>
                 <div class="mt-2 flex flex-wrap sm:flex-row sm:space-x-6 text-gray-400 text-sm">
                     <div class="flex items-center mt-2">
                         Data Source:
@@ -36,10 +39,10 @@
             </div>
 
             <div class="mt-5 flex lg:mt-0 lg:ml-4 space-x-3">
-                <a href="https://github.com/bence-vass/Information-Visualization-A3" >
-                <button class="bg-indigo-500 hover:bg-indigo-400 px-3 py-2 rounded-md text-sm font-semibold">
-                    View GitHub
-                </button>
+                <a href="https://github.com/bence-vass/Information-Visualization-A3">
+                    <button class="bg-indigo-500 hover:bg-indigo-400 px-3 py-2 rounded-md text-sm font-semibold">
+                        View GitHub
+                    </button>
                 </a>
             </div>
         </div>
@@ -61,7 +64,7 @@
 
         <!-- Row 1 -->
         <!-- Row 1 - Cell 1 -->
-        <div class="col-span-2">
+        <!-- <div class="col-span-2">
             <div id="pieChartContainer" class="mx-auto ">
 
                 <div style="display: flex;">
@@ -69,7 +72,7 @@
                         class="mx-4 w-20 text-center px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 dark:bg-gray-900" />
                     <button id="refreshPieChartBtn" style="border: #fff solid 2px"
                         class="flex items-center justify-center p-2 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-transform duration-200">
-                        <!-- Refresh/arrow icon -->
+                        <span class="mr-4 ml-2">Refresh</span>
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#fff"
                             version="1.1" id="Capa_1" width="24px" height="24px" viewBox="0 0 547.842 547.842"
                             xml:space="preserve">
@@ -82,10 +85,10 @@
                 </div>
                 <div id="pieChart"></div>
             </div>
-        </div>
+        </div> -->
         <!-- Row 1 - Cell 2 -->
 
-        <div class="col-span-1 p-6 rounded-lg shadow-md">
+        <!-- <div class="col-span-1 p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-bold mb-4 text-white">Discover Our Collection</h2>
             <p class="text-white leading-relaxed">
                 Explore the fascinating range of artifacts and objects our museum has acquired over the selected time
@@ -103,12 +106,57 @@
                 preserving
                 history and culture.
             </p>
+        </div> -->
+        <!-- Row 1 END-->
+
+
+        <!-- Row 1 -->
+        <!-- Row 1 - Cell 1 -->
+        <div class="col-span-2">
+            <div id="barChartContainer" class="mx-auto ">
+
+                <div class="mb-4 flex">
+                    <input id="barChartTopInput" type="number" min="3" max="25" value="12"
+                        class="mx-4 w-20 text-center px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 dark:bg-gray-900" />
+                    <button id="refreshBarChartBtn" style="border: #fff solid 2px"
+                        class="flex items-center justify-center p-2 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-transform duration-200">
+                        <span class="mr-4 ml-2">Refresh</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#fff"
+                            version="1.1" id="Capa_1" width="24px" height="24px" viewBox="0 0 547.842 547.842"
+                            xml:space="preserve">
+                            <g>
+                                <path
+                                    d="M506.367,293.097h-43.836c-11.092,0-20.043,8.874-20.426,19.813c-9.104,84.609-80.707,150.476-167.84,150.476   c-93.253,0-168.759-75.429-168.759-168.529c0-92.258,76.041-167.229,168.071-168.529v27.387c0,12.47,8.874,18.054,19.737,12.47   l140.684-71.986c10.863-5.585,10.863-14.612,0-20.196L293.314,2.168c-10.863-5.584-19.737,0-19.737,12.393v27.616   C134.882,43.478,21.127,156.239,21.127,295.01c0,139.612,113.296,252.832,253.139,252.832   c133.723,0,243.27-103.504,252.449-234.778C526.791,302.048,517.535,293.097,506.367,293.097z" />
+                            </g>
+                        </svg>
+                    </button>
+                </div>
+                <div id="barChart"></div>
+            </div>
         </div>
+        <!-- Row 1 - Cell 2 -->
+
+        <div class="col-span-1 p-6 rounded-lg">
+            <h2 class="text-2xl font-bold mb-4 text-white">Discover Our Collection</h2>
+            <p class="text-white leading-relaxed">
+                Explore the fascinating range of artifacts and objects our museum has acquired over the selected time
+                period. The accompanying bar chart illustrates the number of items obtained in each category, providing
+                a clear visual overview of our growing collection.
+            </p>
+            <p class="mt-4 text-white leading-relaxed">
+                Each bar represents a different type of artifact, giving visitors insight into the diversity and focus
+                of
+                our acquisitions. Whether you are curious about historical relics, artistic masterpieces, or cultural
+                treasures, this chart provides a snapshot of the richness of our collection and highlights the museum’s
+                dedication to preserving history and culture.
+            </p>
+        </div>
+
         <!-- Row 1 END-->
 
         <!-- Row 2 -->
         <!-- Row 2 - Cell 1 -->
-        <div class="col-span-1 p-6 rounded-lg shadow-md">
+        <div class="col-span-1 p-6 rounded-lg">
             <h2 class="text-2xl font-bold mb-4 text-white">Track Our Growth Over Time</h2>
             <p class="text-white leading-relaxed">
                 The line chart shows the number of new acquisitions in each category for every year, allowing you to see
@@ -125,12 +173,12 @@
 
         <!-- Row 2 - Cell 2 -->
         <div class="col-span-2">
-            <div style="display: flex;">
+            <div class="mb-4 flex">
                 <input id="lineChartTopInput" type="number" min="3" max="20" value="7"
                     class="mx-4 w-20 text-center px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 dark:bg-gray-900" />
                 <button id="refreshLineChartBtn" style="border: #fff solid 2px"
                     class="flex items-center justify-center p-2 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-transform duration-200">
-                    <!-- Refresh/arrow icon -->
+                    <span class="mr-4 ml-2">Refresh</span>
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#fff"
                         version="1.1" id="Capa_1" width="24px" height="24px" viewBox="0 0 547.842 547.842"
                         xml:space="preserve">
@@ -149,10 +197,14 @@
         <!-- Row 2 END-->
 
         <!-- Row 3 -->
-        <div class="bg-blue-400 col-span-3">
+        <!-- <div class="bg-blue-400 col-span-3">
             <div id="objectShowcase" class="w-full overflow-x-auto flex gap-6">asd</div>
-        </div>
+        </div> -->
         <!-- Row 3 END-->
+
+        <div>
+            <h3>Disclousers</h3>
+        </div>
 
 
 
@@ -189,6 +241,10 @@
 
     <!-- line chart script -->
     <script type="module" src="scripts/lineChart.js"></script>
+
+    <!-- bar chart script -->
+    <script type="module" src="scripts/barChart.js"></script>
+
 
 </body>
 

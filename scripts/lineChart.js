@@ -30,25 +30,30 @@ export const getLineData = (selectedData, topN) => {
     // Filtering the data ( keep only from topN categories )
     const filteredData = selectedData.filter(d => topCategories.includes(d.ObjectName))
 
+    const allYears = filteredData.map(d => d.AccessionYear)
+    const minYear = Math.min(...allYears)
+    const maxYear = Math.max(...allYears)
+
     const lineData = d3.rollups(filteredData,
         v => d3.sum(v, d => 1),
         d => d.ObjectName,
         d => d.AccessionYear
     ).map(
-        ([objName, yearGroup]) => {
-
+        ([objName, yearGroup], i) => {
+            const objColor = color(i)
             const sortedYear = yearGroup.map(([year, count]) => ({
                 Year: new Date(Date.UTC(year, 0, 1)),
                 Count: count
             })).sort((a, b) => a.Year - b.Year)
-            
+
 
             let commulative = 0;
             const commulativeData = sortedYear.map(d => {
                 commulative += d.Count
                 return {
                     Year: d.Year,
-                    Count: commulative
+                    Count: commulative,
+                    color: objColor
                 }
             })
             return {
@@ -57,13 +62,30 @@ export const getLineData = (selectedData, topN) => {
             }
         }
     )
-    
 
-    const commulativeData = 
+    // Extend to min and max years
+    lineData.forEach(objName => {
+        const firstYear = objName.value[0].Year.getUTCFullYear()
+        const lastYear = objName.value[objName.value.length - 1].Year.getUTCFullYear();
 
+        if (firstYear > minYear) {
+            objName.value.unshift({
+                Year: new Date(Date.UTC(minYear, 0, 1)),
+                Count: 0,
+                support: true,
+                color: objName.value[0].color
+            })
+        }
 
-
-
+        if (lastYear < maxYear) {
+            objName.value.push({
+                Year: new Date(Date.UTC(maxYear, 0, 1)),
+                Count: objName.value[objName.value.length - 1].Count,
+                support: true,
+                color: objName.value[0].color
+            })
+        }
+    })
 
     console.log(lineData)
 
@@ -157,8 +179,8 @@ export const updateLineChart = (data, topN) => {
             .attr("cx", d => x(d.Year))
             .attr("cy", d => y(d.Count))
             .attr("r", 0)
-            .attr("fill", color(itemIxd))
-            .attr("stroke", color(itemIxd))
+            .attr("fill", d => d.color)
+            .attr("stroke", d => d.color)
             .style("z-index", 10)
             .on("mouseover", function (event, d) {
                 d3.select(this)
@@ -198,16 +220,14 @@ export const updateLineChart = (data, topN) => {
                     .attr("r", 4);   // shrink back
 
                 vLine.transition().duration(150).style("opacity", 0);
-            });
-
-
-        circles.transition()
+            })
+            .transition()
             .delay((d, i) => i * 50)
             .duration(500)
-            .attr("r", 4)
+            .attr("r", (d, i) => d.support ? 0 : 4) // keep support values (min, max) hidden 
             .on("end", (d, i) => {
                 if (i == itemData.length - 1) {
-                    drawLine(itemData, color(itemIxd))
+                    drawLine(itemData, d.color)
                 }
             })
 
@@ -254,7 +274,7 @@ const addLegendLineChart = (data) => {
 
 
     const legend = svg.append("g")
-        .attr("transform", `translate(${ Number(marginLeft) + 20},20)`)  // adjust position
+        .attr("transform", `translate(${Number(marginLeft) + 20},20)`)  // adjust position
         .attr("class", "legend")
         .raise()
 

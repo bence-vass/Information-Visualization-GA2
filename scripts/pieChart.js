@@ -22,13 +22,16 @@ const getPieData = (selectedData, topN) => {
 
 
 const pieChartTopInputEl = document.getElementById("pieChartTopInput")
-export let NO_CATEGORIES_PIE = pieChartTopInputEl.value
+export let NO_CATEGORIES_PIE = pieChartTopInputEl ? pieChartTopInputEl.value : null
+if (pieChartTopInputEl) {
 
-pieChartTopInputEl.addEventListener("change", e => {
-    // console.log("changing top n line")
-    NO_CATEGORIES_PIE = e.target.value
-    updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
-})
+    pieChartTopInputEl.addEventListener("change", e => {
+        // console.log("changing top n line")
+        NO_CATEGORIES_PIE = e.target.value
+        updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
+    })
+
+}
 
 
 
@@ -46,7 +49,7 @@ const svg = d3.select("#pieChart")
     .attr("width", width)
     .attr("height", height)
     .attr("viewBox", [offsetX, offsetY, width, height])
-    // .attr("style", "border:5px solid blue; background-color:white")
+// .attr("style", "border:5px solid blue; background-color:white")
 
 const arc = d3.arc()
     .innerRadius(innerRadius)
@@ -123,13 +126,11 @@ export const updatePieChart = (rawData, topN) => {
             });
 
         const labelGroupBoundingBox = labelGroup.node().getBBox()
-        labelGroup.attr("transform", `translate(${
-            offsetX //viewBox offset
+        labelGroup.attr("transform", `translate(${offsetX //viewBox offset
             + width // move to right
             // - labelGroupBoundingBox.width // keep group visible
             - 350 // margin
-            }, ${
-            offsetY //viewBox offset
+            }, ${offsetY //viewBox offset
             // + 20 // margin
             })`);
     }
@@ -140,7 +141,10 @@ export const updatePieChart = (rawData, topN) => {
 
 
 const refreshPieChartBtnEl = document.getElementById("refreshPieChartBtn")
-refreshPieChartBtnEl.addEventListener("click", e => {
-    updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
-})
+if (refreshPieChartBtnEl) {
+    refreshPieChartBtnEl.addEventListener("click", e => {
+        updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
+    })
+}
+
 

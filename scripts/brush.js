@@ -1,6 +1,7 @@
 import { minX, maxX, DATA} from "../script.js";
 import { updatePieChart, NO_CATEGORIES_PIE } from "./pieChart.js";
 import { getLineData, NO_CATEGORIES_LINE, updateLineChart } from "./lineChart.js";
+import { NO_CATEGORIES_BAR, updateBarChart } from "./barChart.js";
 
 // Time Period Selection Brush
 // ================================================================================= //
@@ -23,9 +24,11 @@ const updateSelectedData = () => {
     SELECTED_DATA = DATA.filter(d => d.AccessionYear >= minYear && d.AccessionYear <= maxYear);
     console.log("Selected Data:", SELECTED_DATA);
 
-    updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
+    // updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
 
     updateLineChart(SELECTED_DATA, NO_CATEGORIES_LINE)
+
+    updateBarChart(SELECTED_DATA, NO_CATEGORIES_BAR)
 }
 
 // Set Time Period Display
