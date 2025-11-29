@@ -23,7 +23,7 @@ const dataImportFn = (d) => {
 }
 // export const DATA = await d3.csv("MetObjects.csv", dataImportFn);   // local file
 const dataUrl = "https://raw.githubusercontent.com/bence-vass/Information-Visualization-A3/refs/heads/main/MetObjects.min.csv"
-const DATA = await d3.csv(dataUrl, dataImportFn); // online file
+export const DATA = await d3.csv(dataUrl, dataImportFn); // online file
 
 // remove loading spinner after data is loaded
 const loadingElement = document.getElementById("loadingChart");
