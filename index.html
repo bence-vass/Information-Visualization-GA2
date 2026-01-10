@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="https://raw.githubusercontent.com/bence-vass/Information-Visualization-A3/refs/heads/main/favicon.ico" type="image/x-icon">
+    <link rel="icon"
+        href="https://raw.githubusercontent.com/bence-vass/Information-Visualization-A3/refs/heads/main/favicon.ico"
+        type="image/x-icon">
     <title>InfVis - A3</title>
 
     <link rel="stylesheet" href="style.css">
@@ -48,20 +50,6 @@
                 </a>
             </div>
         </div>
-
-        <div class="bg-gray-900 p-6 rounded-2xl mt-6 mb-8">
-            <p class="text-gray-400 mb-2">
-                Use the brush below to explore acquisitions by year.
-                <span id="departmentFilterIndicator" style="display: none;" class="ml-4 text-blue-400">
-                    Filtering by: <strong id="departmentFilterName"></strong> 
-                    <button id="clearDepartmentFilter" class="ml-2 text-xs bg-red-500 hover:bg-red-600 px-2 py-1 rounded">Clear</button>
-                </span>
-            </p>
-            <p class="text-gray-100 font-medium">
-                Selected Time Period: <span id="timePeriod" class="text-blue-400"></span>
-            </p>
-        </div>
-
 
     </header>
 
@@ -119,13 +107,32 @@
         <!-- Row 1: Department Pie Chart -->
         <!-- Row 1 - Cell 1 (Description) -->
         <div class="col-span-1 p-6 rounded-lg">
+            <div class="bg-gray-900 mt-6 mb-8">
+                <p class="text-gray-400 mb-2">
+                    Use the brush below to explore acquisitions by year.<br>
+                    Use click on a department slice to filter other visualizations.
+                </p>
+                <p class="text-gray-100 font-medium">
+                    Selected Time Period: <span id="timePeriod" class="text-blue-400"></span>
+                </p>
+                <!-- <span id="departmentFilterIndicator" style="display: none;" class="ml-4 text-blue-400">
+                        Filtering by: <strong id="departmentFilterName"></strong> 
+                        
+                    </span> -->
+                <p class="text-gray-100 font-medium">
+                    Selected Department: <span id="departmentFilterName" class="text-blue-400">None</span>
+                    <button id="clearDepartmentFilter"
+                        class="ml-2 text-xs bg-red-500 hover:bg-red-600 px-2 py-1 rounded">Clear</button>
+                </p>
+            </div>
+
             <h2 class="text-2xl font-bold mb-4 text-white">Museum Department Distribution</h2>
             <p class="text-white leading-relaxed">
-                The pie chart shows the distribution of museum objects across different departments. Each slice 
+                The pie chart shows the distribution of museum objects across different departments. Each slice
                 represents a department and its relative size indicates the proportion of the collection it holds.
             </p>
             <p class="mt-4 text-white leading-relaxed">
-                Hover over any department to see detailed statistics. Click on a department to filter all other 
+                Hover over any department to see detailed statistics. Click on a department to filter all other
                 visualizations and explore that department's acquisitions over time.
             </p>
             <p class="mt-4 text-sm text-gray-400">
@@ -134,7 +141,16 @@
         </div>
         <!-- Row 1 - Cell 2 (Pie Chart) -->
         <div class="col-span-2">
-            <div id="pieChartDepartmentContainer" class="mx-auto">
+            <div id="pieChartDepartmentContainer" style="margin: -5rem auto;">
+                <div class="mb-4 flex items-center" style="margin-top: 6.5rem; position: absolute;">
+                    <span class="content-center mr-2 font-medium text-white">Label threshold: ></span>
+                    <input id="pieChartPercentInput" type="number" min="0" max="20" step="1" value="5"
+                        class="mx-2 w-16 text-center px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 dark:bg-gray-900 text-white" />
+                    <span class="content-center mr-4 font-medium text-white">% or top</span>
+                    <input id="pieChartTopInput" type="number" min="3" max="15" value="7"
+                        class="mx-2 w-16 text-center px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 dark:bg-gray-900 text-white" />
+                    <span class="content-center font-medium text-white">departments</span>
+                </div>
                 <div id="pieChartDepartment"></div>
             </div>
         </div>
@@ -214,7 +230,7 @@
                     class="mx-4 w-20 text-center px-3 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 dark:bg-gray-900" />
                 <span class="content-center mr-2 font-medium">categories</span>
 
-                    <button id="refreshLineChartBtn" style="border: #fff solid 2px"
+                <button id="refreshLineChartBtn" style="border: #fff solid 2px"
                     class="flex items-center justify-center p-2 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-transform duration-200">
                     <span class="mr-4 ml-2">Refresh</span>
                     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#fff"
@@ -256,9 +272,12 @@
     <!-- Grid END -->
 
     <!-- Department Pie Chart Tooltip -->
-    <div id="tooltipDeptPie" style="position: absolute; text-align: center; padding: 12px; font: 14px sans-serif; background: rgba(0, 0, 0, 0.9); color: white; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 0.3s; max-width: 250px; z-index: 1000;"></div>
+    <div id="tooltipDeptPie"
+        style="position: absolute; text-align: center; padding: 12px; font: 14px sans-serif; background: rgba(0, 0, 0, 0.9); color: white; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 0.3s; max-width: 250px; z-index: 1000;">
+    </div>
 
-    <div id="loadingChart" class="bg-gray-900 justify-center flex-row mt-8 absolute w-full " style="height: 100%; top: 10rem">
+    <div id="loadingChart" class="bg-gray-900 justify-center flex-row mt-8 absolute w-full "
+        style="height: 100%; top: 10rem">
         <div class="flex justify-center my-8">
             <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
                 role="status">
