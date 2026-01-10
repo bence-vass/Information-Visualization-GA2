@@ -3,6 +3,7 @@ import { updatePieChart, NO_CATEGORIES_PIE } from "./pieChart.js";
 import { getLineData, NO_CATEGORIES_LINE, SHIFT, updateLineChart } from "./lineChart.js";
 import { NO_CATEGORIES_BAR, updateBarChart } from "./barChart.js";
 import { updateWordCloud } from "./wordCloud.js";
+import { updateDepartmentPieChart } from "./pieChartDepartment.js";
 
 
 // Time Period Selection Brush
@@ -29,6 +30,8 @@ const updateSelectedData = () => {
     console.log("Selected Data:", SELECTED_DATA);
 
     // updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
+
+    updateDepartmentPieChart(SELECTED_DATA)
 
     updateLineChart(SELECTED_DATA, NO_CATEGORIES_LINE, SHIFT)
 
