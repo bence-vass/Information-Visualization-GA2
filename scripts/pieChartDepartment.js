@@ -96,9 +96,9 @@ export const updateDepartmentPieChart = (rawData) => {
     svg.interrupt();
     d3.select("#pieChartDepartment svg").interrupt();
     
-    // Use full dataset if there's a department filter active, otherwise use filtered data
-    const dataToUse = DEPARTMENT_FILTER ? SELECTED_DATA : rawData;
-    const data = getDepartmentData(dataToUse);
+    // Always use the full time-filtered data (ignoring department filter)
+    // This keeps all departments visible and provides context
+    const data = getDepartmentData(rawData);
     console.debug("Department Pie Chart Data", data, "Filter:", DEPARTMENT_FILTER);
 
     // Update SVG size based on filter
@@ -113,7 +113,7 @@ export const updateDepartmentPieChart = (rawData) => {
             .attr("y", 0)
             .style("font-size", "14px")
             .style("fill", "#fff")
-            .text("No data available");
+            .text("No data available for selected time period");
         return;
     }
 
@@ -133,13 +133,8 @@ export const updateDepartmentPieChart = (rawData) => {
         .attr("fill", (d, i) => color(i))
         .attr("d", arc)
         .attr("stroke", "white")
-        .attr("stroke-width", d => d.data.Department === DEPARTMENT_FILTER ? 4 : 2)
+        .attr("stroke-width", 2)
         .style("cursor", "pointer")
-        .style("opacity", d => {
-            // Highlight selected department, dim others
-            if (!DEPARTMENT_FILTER) return 1;
-            return d.data.Department === DEPARTMENT_FILTER ? 1 : 0.3;
-        })
         .each(function (d) {
             this._current = {
                 startAngle: 0,
@@ -148,12 +143,10 @@ export const updateDepartmentPieChart = (rawData) => {
             };
         })
         .on("mouseover", function (event, d) {
-            if (!DEPARTMENT_FILTER || d.data.Department === DEPARTMENT_FILTER) {
-                d3.select(this)
-                    .transition()
-                    .duration(200)
-                    .style("opacity", 0.7);
-            }
+            d3.select(this)
+                .transition()
+                .duration(200)
+                .style("opacity", 0.8);
 
             const percentage = ((d.data.Count / total) * 100).toFixed(1);
             d3.select("#tooltipDeptPie")
@@ -161,8 +154,8 @@ export const updateDepartmentPieChart = (rawData) => {
                 .html(`
                     <strong>${d.data.Department}</strong><br/>
                     Objects: ${d3.format(",")(d.data.Count)}<br/>
-                    ${percentage}% of collection
-                    ${d.data.Department === DEPARTMENT_FILTER ? '<br/><em>(Active Filter)</em>' : '<br/><em>Click to filter</em>'}
+                    ${percentage}% of selection
+                    ${d.data.Department === DEPARTMENT_FILTER ? '<br/><em>(Active Filter - Click to clear)</em>' : '<br/><em>Click to filter</em>'}
                 `);
         })
         .on("mousemove", function (event) {
@@ -175,10 +168,7 @@ export const updateDepartmentPieChart = (rawData) => {
             d3.select(this)
                 .transition()
                 .duration(200)
-                .style("opacity", () => {
-                    if (!DEPARTMENT_FILTER) return 1;
-                    return d.data.Department === DEPARTMENT_FILTER ? 1 : 0.3;
-                });
+                .style("opacity", 1);
         })
         .on("click", function (event, d) {
             event.stopPropagation();
@@ -191,7 +181,7 @@ export const updateDepartmentPieChart = (rawData) => {
 
             // Set animation lock
             isAnimating = true;
-            setTimeout(() => { isAnimating = false; }, 1500); // Release after animation completes
+            setTimeout(() => { isAnimating = false; }, 700);
 
             // Toggle filter: if clicking same department, clear filter; otherwise set new filter
             if (DEPARTMENT_FILTER === clickedDept) {
@@ -199,6 +189,9 @@ export const updateDepartmentPieChart = (rawData) => {
             } else {
                 setDepartmentFilter(clickedDept);
             }
+            
+            // Update filter indicator
+            updateFilterIndicator();
         })
         .transition()
         .duration(750)
@@ -262,14 +255,19 @@ export const updateDepartmentPieChart = (rawData) => {
 
 // Update filter indicator UI
 function updateFilterIndicator() {
-    const indicator = document.getElementById("departmentFilterIndicator");
-    const filterName = document.getElementById("departmentFilterName");
+    const filterNameSpan = document.getElementById("departmentFilterName");
+    const clearBtn = document.getElementById("clearDepartmentFilter");
 
-    if (DEPARTMENT_FILTER && indicator && filterName) {
-        indicator.style.display = "inline";
-        filterName.textContent = DEPARTMENT_FILTER;
-    } else if (indicator) {
-        indicator.style.display = "none";
+    if (filterNameSpan && clearBtn) {
+        if (DEPARTMENT_FILTER) {
+            // Show the filter name and button
+            filterNameSpan.textContent = DEPARTMENT_FILTER;
+            clearBtn.style.display = "inline-block";
+        } else {
+            // Hide/reset the filter display
+            filterNameSpan.textContent = "None";
+            clearBtn.style.display = "none";
+        }
     }
 }
 
@@ -278,5 +276,7 @@ const clearBtn = document.getElementById("clearDepartmentFilter");
 if (clearBtn) {
     clearBtn.addEventListener("click", () => {
         clearDepartmentFilter();
+        // Update highlighting immediately after clearing
+        updatePieChartHighlighting();
     });
 }
