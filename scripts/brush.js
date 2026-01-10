@@ -26,7 +26,6 @@ let x = null
 // Export function to set department filter
 export const setDepartmentFilter = (department) => {
     DEPARTMENT_FILTER = department;
-    console.log("Department filter set to:", department);
     
     // Use requestAnimationFrame to defer updates and avoid blocking
     requestAnimationFrame(() => {
@@ -37,7 +36,6 @@ export const setDepartmentFilter = (department) => {
 // Export function to clear department filter
 export const clearDepartmentFilter = () => {
     DEPARTMENT_FILTER = null;
-    console.log("Department filter cleared");
     requestAnimationFrame(() => {
         updateSelectedData(true); // Skip pie update
     });
@@ -45,12 +43,20 @@ export const clearDepartmentFilter = () => {
 
 // actual selection of data
 const updateSelectedData = (skipPieUpdate = false) => {
-    // console.log(selectedDateMin, selectedDateMax);
     const minYear = selectedDateMin.getFullYear();
     const maxYear = selectedDateMax.getFullYear();
     
     // Filter data in chunks to avoid blocking the UI
-    requestIdleCallback(() => {
+    // Polyfill for browsers that don't support requestIdleCallback
+    const scheduleCallback = (callback, options) => {
+        if (typeof requestIdleCallback !== 'undefined') {
+            requestIdleCallback(callback, options);
+        } else {
+            setTimeout(callback, 0);
+        }
+    };
+    
+    scheduleCallback(() => {
         // Filter by year only
         let filteredByYear = DATA.filter(d => d.AccessionYear >= minYear && d.AccessionYear <= maxYear);
         yearFilteredData = filteredByYear; // Store year-filtered data for pie chart
@@ -62,7 +68,6 @@ const updateSelectedData = (skipPieUpdate = false) => {
         }
         
         SELECTED_DATA = filteredData;
-        console.log("Selected Data:", SELECTED_DATA, "Year Filtered:", yearFilteredData, "Department Filter:", DEPARTMENT_FILTER);
 
         // Update charts after filtering is complete
         requestAnimationFrame(() => {
@@ -79,7 +84,7 @@ const updateSelectedData = (skipPieUpdate = false) => {
 
             updateWordCloud(SELECTED_DATA)
         });
-    }, { timeout: 50 }); // Fallback timeout if idle callback doesn't fire
+    }, { timeout: 50 });
 }
 
 // Set Time Period Display
@@ -91,12 +96,11 @@ const setTimePeriod = (min, max) => {
     updateSelectedData();
 }
 
-// function called on brushing end, sets the 
+// function called on brushing end, sets the time period
 const brushEnded = (event) => {
     const selection = event.selection;
     const brushedYears = selection.map(x.invert);
     setTimePeriod(brushedYears[0], brushedYears[1]);
-    console.log("setting")
 }
 
 

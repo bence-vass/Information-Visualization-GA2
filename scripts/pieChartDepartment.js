@@ -2,9 +2,12 @@ import { SELECTED_DATA, DEPARTMENT_FILTER, setDepartmentFilter, clearDepartmentF
 
 // Configuration
 const width = 900;
-const height = 700;
-const radius = Math.min(width, height) / 2 - 150; // 150 for labels
+const height = 500;
+const radius = Math.min(width, height) / 1.5 - 150; // Subtract 150px margin to accommodate external labels
 const color = d3.scaleOrdinal(d3.schemeTableau10);
+
+// Animation and timing constants
+const ANIMATION_LOCK_DURATION = 700; // ms - Duration to prevent spam clicking
 
 // Label filtering configuration
 export let PIE_LABEL_PERCENT_THRESHOLD = 5;
@@ -19,7 +22,7 @@ const pieChartTopInput = document.getElementById("pieChartTopInput");
 
 if (pieChartPercentInput) {
     pieChartPercentInput.addEventListener("change", e => {
-        PIE_LABEL_PERCENT_THRESHOLD = parseFloat(e.target.value);
+        PIE_LABEL_PERCENT_THRESHOLD = parseInt(e.target.value, 10);
         if (SELECTED_DATA) {
             updateDepartmentPieChart(SELECTED_DATA);
         }
@@ -36,20 +39,22 @@ if (pieChartTopInput) {
 }
 
 // SVG container
-const svg = d3.select("#pieChartDepartment")
+const rootSvg = d3.select("#pieChartDepartment")
     .append("svg")
-    .attr("class", "mx-auto")
+    // .attr("class", "mx-auto")
     .attr("width", width)
     .attr("height", height)
-    .append("g")
-    //.attr("transform", `translate(${width / 2}, ${height / 2})`);
     .attr("viewBox", [0, 0, width, height])
     .attr("style", "max-width: 100%; height: auto; font: 10px sans-serif;");
 
+const svg = rootSvg
+    .append("g")
+    .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+let svgElement = rootSvg;
+
 // Function to update SVG size based on filter
 function updateSVGSize() {
-    const svgElement = d3.select("#pieChartDepartment svg");
-
     // Scale back up when filter is cleared
     const scaledWidth = width;
     const scaledHeight = height;
@@ -94,12 +99,11 @@ const getDepartmentData = (selectedData) => {
 export const updateDepartmentPieChart = (rawData) => {
     // Interrupt any ongoing transitions to prevent conflicts
     svg.interrupt();
-    d3.select("#pieChartDepartment svg").interrupt();
+    svgElement.interrupt();
     
     // Always use the full time-filtered data (ignoring department filter)
     // This keeps all departments visible and provides context
     const data = getDepartmentData(rawData);
-    console.debug("Department Pie Chart Data", data, "Filter:", DEPARTMENT_FILTER);
 
     // Update SVG size based on filter
     updateSVGSize();
@@ -125,7 +129,7 @@ export const updateDepartmentPieChart = (rawData) => {
         return pct > PIE_LABEL_PERCENT_THRESHOLD || i < PIE_LABEL_TOP_COUNT;
     });
 
-    const path = svg.append("g")
+    svg.append("g")
         .attr("class", "pie-arcs")
         .selectAll("path")
         .data(pie(data))
@@ -177,11 +181,10 @@ export const updateDepartmentPieChart = (rawData) => {
             if (isAnimating) return;
             
             const clickedDept = d.data.Department;
-            console.log("Clicked department:", clickedDept);
 
             // Set animation lock
             isAnimating = true;
-            setTimeout(() => { isAnimating = false; }, 700);
+            setTimeout(() => { isAnimating = false; }, ANIMATION_LOCK_DURATION);
 
             // Toggle filter: if clicking same department, clear filter; otherwise set new filter
             if (DEPARTMENT_FILTER === clickedDept) {
@@ -276,7 +279,6 @@ const clearBtn = document.getElementById("clearDepartmentFilter");
 if (clearBtn) {
     clearBtn.addEventListener("click", () => {
         clearDepartmentFilter();
-        // Update highlighting immediately after clearing
-        updatePieChartHighlighting();
+        // Filter indicator is updated via updateFilterIndicator() in updateDepartmentPieChart
     });
 }
