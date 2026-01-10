@@ -17,6 +17,7 @@ const margin = ({ top: 10, right: 20, bottom: 20, left: 20 })
 // Selected Data Update
 export let SELECTED_DATA = null;
 export let DEPARTMENT_FILTER = null; // Department filter for bidirectional linking
+let yearFilteredData = null; // Data filtered only by year (NOT by department) - for pie chart
 let selectedDateMin = null
 let selectedDateMax = null
 let DATA = []
@@ -26,40 +27,59 @@ let x = null
 export const setDepartmentFilter = (department) => {
     DEPARTMENT_FILTER = department;
     console.log("Department filter set to:", department);
-    updateSelectedData();
+    
+    // Use requestAnimationFrame to defer updates and avoid blocking
+    requestAnimationFrame(() => {
+        updateSelectedData(true); // Skip pie update since we just clicked on it
+    });
 }
 
 // Export function to clear department filter
 export const clearDepartmentFilter = () => {
     DEPARTMENT_FILTER = null;
     console.log("Department filter cleared");
-    updateSelectedData();
+    requestAnimationFrame(() => {
+        updateSelectedData(true); // Skip pie update
+    });
 }
 
 // actual selection of data
-const updateSelectedData = () => {
+const updateSelectedData = (skipPieUpdate = false) => {
     // console.log(selectedDateMin, selectedDateMax);
     const minYear = selectedDateMin.getFullYear();
     const maxYear = selectedDateMax.getFullYear();
-    let filteredData = DATA.filter(d => d.AccessionYear >= minYear && d.AccessionYear <= maxYear);
     
-    // Apply department filter if set
-    if (DEPARTMENT_FILTER) {
-        filteredData = filteredData.filter(d => d.Department === DEPARTMENT_FILTER);
-    }
-    
-    SELECTED_DATA = filteredData;
-    console.log("Selected Data:", SELECTED_DATA, "Department Filter:", DEPARTMENT_FILTER);
+    // Filter data in chunks to avoid blocking the UI
+    requestIdleCallback(() => {
+        // Filter by year only
+        let filteredByYear = DATA.filter(d => d.AccessionYear >= minYear && d.AccessionYear <= maxYear);
+        yearFilteredData = filteredByYear; // Store year-filtered data for pie chart
+        
+        // Apply department filter if set (for other charts)
+        let filteredData = filteredByYear;
+        if (DEPARTMENT_FILTER) {
+            filteredData = filteredData.filter(d => d.Department === DEPARTMENT_FILTER);
+        }
+        
+        SELECTED_DATA = filteredData;
+        console.log("Selected Data:", SELECTED_DATA, "Year Filtered:", yearFilteredData, "Department Filter:", DEPARTMENT_FILTER);
 
-    // updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
+        // Update charts after filtering is complete
+        requestAnimationFrame(() => {
+            // updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
 
-    updateDepartmentPieChart(SELECTED_DATA)
+            // Pie chart always gets year-filtered data (ALL departments)
+            if (!skipPieUpdate) {
+                updateDepartmentPieChart(yearFilteredData);
+            }
 
-    updateLineChart(SELECTED_DATA, NO_CATEGORIES_LINE, SHIFT)
+            updateLineChart(SELECTED_DATA, NO_CATEGORIES_LINE, SHIFT)
 
-    updateBarChart(SELECTED_DATA, NO_CATEGORIES_BAR)
+            updateBarChart(SELECTED_DATA, NO_CATEGORIES_BAR)
 
-    updateWordCloud(SELECTED_DATA)
+            updateWordCloud(SELECTED_DATA)
+        });
+    }, { timeout: 50 }); // Fallback timeout if idle callback doesn't fire
 }
 
 // Set Time Period Display
