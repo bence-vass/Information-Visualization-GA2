@@ -1,4 +1,4 @@
-import { SELECTED_DATA } from "./brush.js";
+import { SELECTED_DATA, DEPARTMENT_FILTER, setDepartmentFilter, clearDepartmentFilter } from "./brush.js";
 
 // Configuration
 const width = 900;
@@ -45,8 +45,10 @@ const getDepartmentData = (selectedData) => {
 }
 
 export const updateDepartmentPieChart = (rawData) => {
-    const data = getDepartmentData(rawData);
-    console.debug("Department Pie Chart Data", data);
+    // Use full dataset if there's a department filter active, otherwise use filtered data
+    const dataToUse = DEPARTMENT_FILTER ? SELECTED_DATA : rawData;
+    const data = getDepartmentData(dataToUse);
+    console.debug("Department Pie Chart Data", data, "Filter:", DEPARTMENT_FILTER);
     
     // Clean svg
     svg.selectAll("*").remove();
@@ -77,8 +79,13 @@ export const updateDepartmentPieChart = (rawData) => {
         .attr("fill", (d, i) => color(i))
         .attr("d", arc)
         .attr("stroke", "white")
-        .attr("stroke-width", 2)
+        .attr("stroke-width", d => d.data.Department === DEPARTMENT_FILTER ? 4 : 2)
         .style("cursor", "pointer")
+        .style("opacity", d => {
+            // Highlight selected department, dim others
+            if (!DEPARTMENT_FILTER) return 1;
+            return d.data.Department === DEPARTMENT_FILTER ? 1 : 0.3;
+        })
         .each(function(d) {
             this._current = {
                 startAngle: 0,
@@ -87,10 +94,12 @@ export const updateDepartmentPieChart = (rawData) => {
             };
         })
         .on("mouseover", function(event, d) {
-            d3.select(this)
-                .transition()
-                .duration(200)
-                .style("opacity", 0.7);
+            if (!DEPARTMENT_FILTER || d.data.Department === DEPARTMENT_FILTER) {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .style("opacity", 0.7);
+            }
             
             const percentage = ((d.data.Count / total) * 100).toFixed(1);
             d3.select("#tooltipDeptPie")
@@ -99,6 +108,7 @@ export const updateDepartmentPieChart = (rawData) => {
                     <strong>${d.data.Department}</strong><br/>
                     Objects: ${d3.format(",")(d.data.Count)}<br/>
                     ${percentage}% of collection
+                    ${d.data.Department === DEPARTMENT_FILTER ? '<br/><em>(Active Filter)</em>' : '<br/><em>Click to filter</em>'}
                 `);
         })
         .on("mousemove", function(event) {
@@ -106,16 +116,27 @@ export const updateDepartmentPieChart = (rawData) => {
                 .style("left", (event.pageX + 15) + "px")
                 .style("top", (event.pageY - 28) + "px");
         })
-        .on("mouseout", function() {
+        .on("mouseout", function(event, d) {
             d3.select("#tooltipDeptPie").style("opacity", 0);
             d3.select(this)
                 .transition()
                 .duration(200)
-                .style("opacity", 1);
+                .style("opacity", () => {
+                    if (!DEPARTMENT_FILTER) return 1;
+                    return d.data.Department === DEPARTMENT_FILTER ? 1 : 0.3;
+                });
         })
         .on("click", function(event, d) {
-            console.log("Clicked department:", d.data.Department);
-            // TODO: Implement filtering by department
+            event.stopPropagation();
+            const clickedDept = d.data.Department;
+            console.log("Clicked department:", clickedDept);
+            
+            // Toggle filter: if clicking same department, clear filter; otherwise set new filter
+            if (DEPARTMENT_FILTER === clickedDept) {
+                clearDepartmentFilter();
+            } else {
+                setDepartmentFilter(clickedDept);
+            }
         })
         .transition()
         .duration(750)
@@ -172,4 +193,28 @@ export const updateDepartmentPieChart = (rawData) => {
             return midangle < Math.PI ? "start" : "end";
         })
         .text(d => d.data.Department);
+    
+    // Update filter indicator UI
+    updateFilterIndicator();
+}
+
+// Update filter indicator UI
+function updateFilterIndicator() {
+    const indicator = document.getElementById("departmentFilterIndicator");
+    const filterName = document.getElementById("departmentFilterName");
+    
+    if (DEPARTMENT_FILTER && indicator && filterName) {
+        indicator.style.display = "inline";
+        filterName.textContent = DEPARTMENT_FILTER;
+    } else if (indicator) {
+        indicator.style.display = "none";
+    }
+}
+
+// Setup clear filter button
+const clearBtn = document.getElementById("clearDepartmentFilter");
+if (clearBtn) {
+    clearBtn.addEventListener("click", () => {
+        clearDepartmentFilter();
+    });
 }

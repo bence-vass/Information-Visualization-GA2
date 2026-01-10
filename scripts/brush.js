@@ -16,18 +16,40 @@ const margin = ({ top: 10, right: 20, bottom: 20, left: 20 })
 
 // Selected Data Update
 export let SELECTED_DATA = null;
+export let DEPARTMENT_FILTER = null; // Department filter for bidirectional linking
 let selectedDateMin = null
 let selectedDateMax = null
 let DATA = []
 let x = null
+
+// Export function to set department filter
+export const setDepartmentFilter = (department) => {
+    DEPARTMENT_FILTER = department;
+    console.log("Department filter set to:", department);
+    updateSelectedData();
+}
+
+// Export function to clear department filter
+export const clearDepartmentFilter = () => {
+    DEPARTMENT_FILTER = null;
+    console.log("Department filter cleared");
+    updateSelectedData();
+}
 
 // actual selection of data
 const updateSelectedData = () => {
     // console.log(selectedDateMin, selectedDateMax);
     const minYear = selectedDateMin.getFullYear();
     const maxYear = selectedDateMax.getFullYear();
-    SELECTED_DATA = DATA.filter(d => d.AccessionYear >= minYear && d.AccessionYear <= maxYear);
-    console.log("Selected Data:", SELECTED_DATA);
+    let filteredData = DATA.filter(d => d.AccessionYear >= minYear && d.AccessionYear <= maxYear);
+    
+    // Apply department filter if set
+    if (DEPARTMENT_FILTER) {
+        filteredData = filteredData.filter(d => d.Department === DEPARTMENT_FILTER);
+    }
+    
+    SELECTED_DATA = filteredData;
+    console.log("Selected Data:", SELECTED_DATA, "Department Filter:", DEPARTMENT_FILTER);
 
     // updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
 
