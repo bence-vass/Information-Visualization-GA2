@@ -17,7 +17,7 @@ const margin = ({ top: 10, right: 20, bottom: 20, left: 20 })
 // Selected Data Update
 export let SELECTED_DATA = null;
 export let DEPARTMENT_FILTER = null; // Department filter for bidirectional linking
-let yearFilteredData = null; // Data filtered only by year (NOT by department) - for pie chart
+export let yearFilteredData = null; // Data filtered only by year (NOT by department) - for pie chart
 let selectedDateMin = null
 let selectedDateMax = null
 let DATA = []
@@ -26,7 +26,7 @@ let x = null
 // Export function to set department filter
 export const setDepartmentFilter = (department) => {
     DEPARTMENT_FILTER = department;
-    
+
     // Use requestAnimationFrame to defer updates and avoid blocking
     requestAnimationFrame(() => {
         updateSelectedData(true); // Skip pie update since we just clicked on it
@@ -43,9 +43,14 @@ export const clearDepartmentFilter = () => {
 
 // actual selection of data
 const updateSelectedData = (skipPieUpdate = false) => {
+    // Guard against uninitialized date range  
+    if (!selectedDateMin || !selectedDateMax) {
+        return;
+    }
+
     const minYear = selectedDateMin.getFullYear();
     const maxYear = selectedDateMax.getFullYear();
-    
+
     // Filter data in chunks to avoid blocking the UI
     // Polyfill for browsers that don't support requestIdleCallback
     const scheduleCallback = (callback, options) => {
@@ -55,18 +60,18 @@ const updateSelectedData = (skipPieUpdate = false) => {
             setTimeout(callback, 0);
         }
     };
-    
+
     scheduleCallback(() => {
         // Filter by year only
         let filteredByYear = DATA.filter(d => d.AccessionYear >= minYear && d.AccessionYear <= maxYear);
         yearFilteredData = filteredByYear; // Store year-filtered data for pie chart
-        
+
         // Apply department filter if set (for other charts)
         let filteredData = filteredByYear;
         if (DEPARTMENT_FILTER) {
             filteredData = filteredData.filter(d => d.Department === DEPARTMENT_FILTER);
         }
-        
+
         SELECTED_DATA = filteredData;
 
         // Update charts after filtering is complete

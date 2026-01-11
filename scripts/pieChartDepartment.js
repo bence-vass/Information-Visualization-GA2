@@ -1,4 +1,4 @@
-import { SELECTED_DATA, DEPARTMENT_FILTER, setDepartmentFilter, clearDepartmentFilter } from "./brush.js";
+import { yearFilteredData, DEPARTMENT_FILTER, setDepartmentFilter, clearDepartmentFilter } from "./brush.js";
 
 // Configuration
 const width = 900;
@@ -7,7 +7,7 @@ const radius = Math.min(width, height) / 1.5 - 150; // Subtract 150px margin to 
 const color = d3.scaleOrdinal(d3.schemeTableau10);
 
 // Animation and timing constants
-const ANIMATION_LOCK_DURATION = 700; // ms - Duration to prevent spam clicking
+const ANIMATION_LOCK_DURATION = 800; // ms - Duration to prevent spam clicking
 
 // Label filtering configuration
 export let PIE_LABEL_PERCENT_THRESHOLD = 5;
@@ -22,18 +22,35 @@ const pieChartTopInput = document.getElementById("pieChartTopInput");
 
 if (pieChartPercentInput) {
     pieChartPercentInput.addEventListener("change", e => {
-        PIE_LABEL_PERCENT_THRESHOLD = parseInt(e.target.value, 10);
-        if (SELECTED_DATA) {
-            updateDepartmentPieChart(SELECTED_DATA);
+        const rawValue = e.target.value;
+        const parsedValue = parseInt(rawValue, 10);
+
+        // Accept only valid integer percentages between 0 and 100 (inclusive)  
+        if (!Number.isNaN(parsedValue) && parsedValue >= 0 && parsedValue <= 100) {
+            PIE_LABEL_PERCENT_THRESHOLD = parsedValue;
+            if (yearFilteredData) {
+                updateDepartmentPieChart(yearFilteredData);
+            }
+        } else {
+            // Revert to the last valid value in the UI if input is invalid  
+            e.target.value = PIE_LABEL_PERCENT_THRESHOLD;
         }
     });
 }
 
 if (pieChartTopInput) {
     pieChartTopInput.addEventListener("change", e => {
-        PIE_LABEL_TOP_COUNT = parseInt(e.target.value);
-        if (SELECTED_DATA) {
-            updateDepartmentPieChart(SELECTED_DATA);
+        const rawValue = e.target.value;
+        const parsedValue = parseInt(rawValue, 10);
+        // Accept only valid non-negative integers
+        if (!Number.isNaN(parsedValue) && parsedValue >= 0) {
+            PIE_LABEL_TOP_COUNT = parsedValue;
+            if (yearFilteredData) {
+                updateDepartmentPieChart(yearFilteredData);
+            }
+        } else {
+            // Revert to the last valid value in the UI if input is invalid
+            e.target.value = PIE_LABEL_TOP_COUNT;
         }
     });
 }
@@ -52,23 +69,6 @@ const svg = rootSvg
     .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
 let svgElement = rootSvg;
-
-// Function to update SVG size based on filter
-function updateSVGSize() {
-    // Scale back up when filter is cleared
-    const scaledWidth = width;
-    const scaledHeight = height;
-    svgElement
-        .transition()
-        .duration(300)
-        .attr("width", scaledWidth)
-        .attr("height", scaledHeight);
-
-    // Reset transform to original center
-    svg.transition()
-        .duration(300)
-        .attr("transform", `translate(${scaledWidth / 2}, ${scaledHeight / 2})`);
-}
 
 // Arc generator
 const arc = d3.arc()
@@ -100,13 +100,10 @@ export const updateDepartmentPieChart = (rawData) => {
     // Interrupt any ongoing transitions to prevent conflicts
     svg.interrupt();
     svgElement.interrupt();
-    
+
     // Always use the full time-filtered data (ignoring department filter)
     // This keeps all departments visible and provides context
     const data = getDepartmentData(rawData);
-
-    // Update SVG size based on filter
-    updateSVGSize();
 
     // Clean svg
     svg.selectAll("*").remove();
@@ -176,10 +173,10 @@ export const updateDepartmentPieChart = (rawData) => {
         })
         .on("click", function (event, d) {
             event.stopPropagation();
-            
+
             // Prevent spam clicking during animations
             if (isAnimating) return;
-            
+
             const clickedDept = d.data.Department;
 
             // Set animation lock
@@ -192,7 +189,7 @@ export const updateDepartmentPieChart = (rawData) => {
             } else {
                 setDepartmentFilter(clickedDept);
             }
-            
+
             // Update filter indicator
             updateFilterIndicator();
         })
@@ -216,41 +213,68 @@ export const updateDepartmentPieChart = (rawData) => {
     const lines = svg.selectAll("polyline")
         .data(labelData, d => d.data.Department);
 
-    lines.enter()
-        .append("polyline")
-        .attr("class", "dept-slice-line")
-        .attr("stroke", "#9ca3af")
-        .attr("stroke-width", 1)
-        .attr("fill", "none")
-        .attr("points", d => {
-            const posA = arc.centroid(d);
-            const posB = outerArc.centroid(d);
-            const posC = outerArc.centroid(d);
-            const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2;
-            posC[0] = radius * 1.1 * (midangle < Math.PI ? 1 : -1);
-            return [posA, posB, posC];
-        });
+    lines.join(  
+        enter => enter  
+            .append("polyline")  
+            .attr("class", "dept-slice-line")  
+            .attr("stroke", "#9ca3af")  
+            .attr("stroke-width", 1)  
+            .attr("fill", "none")  
+            .attr("points", d => {  
+                const posA = arc.centroid(d);  
+                const posB = outerArc.centroid(d);  
+                const posC = outerArc.centroid(d);  
+                const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2;  
+                posC[0] = radius * 1.1 * (midangle < Math.PI ? 1 : -1);  
+                return [posA, posB, posC];  
+            }),  
+        update => update  
+            .attr("points", d => {  
+                const posA = arc.centroid(d);  
+                const posB = outerArc.centroid(d);  
+                const posC = outerArc.centroid(d);  
+                const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2;  
+                posC[0] = radius * 1.1 * (midangle < Math.PI ? 1 : -1);  
+                return [posA, posB, posC];  
+            }),  
+        exit => exit.remove()  
+    );  
 
-    // Labels
-    const labels = svg.selectAll("text.slice-label")
-        .data(labelData, d => d.data.Department);
+    // Labels  
+    const labels = svg.selectAll("text.slice-label")  
+        .data(labelData, d => d.data.Department);  
 
-    labels.enter()
-        .append("text")
-        .attr("class", "slice-label")
-        .style("fill", "#e5e7eb")
-        .style("font-size", "12px")
-        .attr("transform", d => {
-            const pos = outerArc.centroid(d);
-            const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2;
-            pos[0] = radius * 1.15 * (midangle < Math.PI ? 1 : -1);
-            return `translate(${pos})`;
-        })
-        .style("text-anchor", d => {
-            const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2;
-            return midangle < Math.PI ? "start" : "end";
-        })
-        .text(d => d.data.Department);
+    labels.join(  
+        enter => enter  
+            .append("text")  
+            .attr("class", "slice-label")  
+            .style("fill", "#e5e7eb")  
+            .style("font-size", "12px")  
+            .attr("transform", d => {  
+                const pos = outerArc.centroid(d);  
+                const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2;  
+                pos[0] = radius * 1.15 * (midangle < Math.PI ? 1 : -1);  
+                return `translate(${pos})`;  
+            })  
+            .style("text-anchor", d => {  
+                const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2;  
+                return midangle < Math.PI ? "start" : "end";  
+            })  
+            .text(d => d.data.Department),  
+        update => update  
+            .attr("transform", d => {  
+                const pos = outerArc.centroid(d);  
+                const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2;  
+                pos[0] = radius * 1.15 * (midangle < Math.PI ? 1 : -1);  
+                return `translate(${pos})`;  
+            })  
+            .style("text-anchor", d => {  
+                const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2;  
+                return midangle < Math.PI ? "start" : "end";  
+            })  
+            .text(d => d.data.Department),  
+        exit => exit.remove()  
+    );
 
     // Update filter indicator UI
     updateFilterIndicator();
