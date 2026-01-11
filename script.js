@@ -19,13 +19,14 @@ const dataImportFn = (d) => {
         "ObjectID": d["Object ID"].toString(),
         "Title": d["Title"].toString(),
         "isHighlight": Boolean(d["Is Highlight"]),
+        "Department": d["Department"] ? d["Department"].toString() : null,  // Added for department pie chart
     }
 }
 
 export const dataPromise = (async () => {
 
     // export const DATA = await d3.csv("MetObjects.csv", dataImportFn);   // local file
-    const dataUrl = "https://raw.githubusercontent.com/bence-vass/Information-Visualization-A3/refs/heads/main/MetObjects.min.csv"
+    const dataUrl = "MetObjects.min.csv"  // Updated to use local file with Department column
     const DATA = await d3.csv(dataUrl, dataImportFn); // online file
 
     // remove loading spinner after data is loaded

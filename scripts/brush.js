@@ -3,6 +3,7 @@ import { updatePieChart, NO_CATEGORIES_PIE } from "./pieChart.js";
 import { getLineData, NO_CATEGORIES_LINE, SHIFT, updateLineChart } from "./lineChart.js";
 import { NO_CATEGORIES_BAR, updateBarChart } from "./barChart.js";
 import { updateWordCloud } from "./wordCloud.js";
+import { updateDepartmentPieChart } from "./pieChartDepartment.js";
 
 
 // Time Period Selection Brush
@@ -15,26 +16,80 @@ const margin = ({ top: 10, right: 20, bottom: 20, left: 20 })
 
 // Selected Data Update
 export let SELECTED_DATA = null;
+export let DEPARTMENT_FILTER = null; // Department filter for bidirectional linking
+export let yearFilteredData = null; // Data filtered only by year (NOT by department) - for pie chart
 let selectedDateMin = null
 let selectedDateMax = null
 let DATA = []
 let x = null
 
+// Export function to set department filter
+export const setDepartmentFilter = (department) => {
+    DEPARTMENT_FILTER = department;
+
+    // Use requestAnimationFrame to defer updates and avoid blocking
+    requestAnimationFrame(() => {
+        updateSelectedData(true); // Skip pie update since we just clicked on it
+    });
+}
+
+// Export function to clear department filter
+export const clearDepartmentFilter = () => {
+    DEPARTMENT_FILTER = null;
+    requestAnimationFrame(() => {
+        updateSelectedData(true); // Skip pie update
+    });
+}
+
 // actual selection of data
-const updateSelectedData = () => {
-    // console.log(selectedDateMin, selectedDateMax);
+const updateSelectedData = (skipPieUpdate = false) => {
+    // Guard against uninitialized date range  
+    if (!selectedDateMin || !selectedDateMax) {
+        return;
+    }
+
     const minYear = selectedDateMin.getFullYear();
     const maxYear = selectedDateMax.getFullYear();
-    SELECTED_DATA = DATA.filter(d => d.AccessionYear >= minYear && d.AccessionYear <= maxYear);
-    console.log("Selected Data:", SELECTED_DATA);
 
-    // updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
+    // Filter data in chunks to avoid blocking the UI
+    // Polyfill for browsers that don't support requestIdleCallback
+    const scheduleCallback = (callback, options) => {
+        if (typeof requestIdleCallback !== 'undefined') {
+            requestIdleCallback(callback, options);
+        } else {
+            setTimeout(callback, 0);
+        }
+    };
 
-    updateLineChart(SELECTED_DATA, NO_CATEGORIES_LINE, SHIFT)
+    scheduleCallback(() => {
+        // Filter by year only
+        let filteredByYear = DATA.filter(d => d.AccessionYear >= minYear && d.AccessionYear <= maxYear);
+        yearFilteredData = filteredByYear; // Store year-filtered data for pie chart
 
-    updateBarChart(SELECTED_DATA, NO_CATEGORIES_BAR)
+        // Apply department filter if set (for other charts)
+        let filteredData = filteredByYear;
+        if (DEPARTMENT_FILTER) {
+            filteredData = filteredData.filter(d => d.Department === DEPARTMENT_FILTER);
+        }
 
-    updateWordCloud(SELECTED_DATA)
+        SELECTED_DATA = filteredData;
+
+        // Update charts after filtering is complete
+        requestAnimationFrame(() => {
+            // updatePieChart(SELECTED_DATA, NO_CATEGORIES_PIE)
+
+            // Pie chart always gets year-filtered data (ALL departments)
+            if (!skipPieUpdate) {
+                updateDepartmentPieChart(yearFilteredData);
+            }
+
+            updateLineChart(SELECTED_DATA, NO_CATEGORIES_LINE, SHIFT)
+
+            updateBarChart(SELECTED_DATA, NO_CATEGORIES_BAR)
+
+            updateWordCloud(SELECTED_DATA)
+        });
+    }, { timeout: 50 });
 }
 
 // Set Time Period Display
@@ -46,12 +101,11 @@ const setTimePeriod = (min, max) => {
     updateSelectedData();
 }
 
-// function called on brushing end, sets the 
+// function called on brushing end, sets the time period
 const brushEnded = (event) => {
     const selection = event.selection;
     const brushedYears = selection.map(x.invert);
     setTimePeriod(brushedYears[0], brushedYears[1]);
-    console.log("setting")
 }
 
 

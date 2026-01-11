@@ -7,7 +7,8 @@ cols_to_keep = [
     "Object Name",
     "Object ID",
     "Title",
-    "Is Highlight"
+    "Is Highlight",
+    "Department"  # Added for pie chart department visualization
 ]
 df = df[cols_to_keep]
-df.to_csv("../MetObjects.min.csv",)
+df.to_csv("../MetObjects.min.csv", index=False)
