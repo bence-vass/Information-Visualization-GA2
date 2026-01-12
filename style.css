@@ -5,3 +5,23 @@
     flex: none
 }
 
+.mapSvg {
+      background: #ffffff;
+      border-radius: 8px;
+}
+
+.mapTooltip {
+      position: absolute;
+      background: rgba(0,0,0,0.85);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 4px;
+      pointer-events: none;
+      font-size: 13px;
+}
+
+.legend text {
+      font-size: 12px;
+      alignment-baseline: middle;
+    }
+

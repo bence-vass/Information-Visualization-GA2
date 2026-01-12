@@ -23,6 +23,8 @@
     <!-- d3-cloud for word cloud -->
     <script src="https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/LIB/d3.layout.cloud.js"></script>
 
+    <!-- TopoJSON -->
+    <script src="https://unpkg.com/topojson-client@3"></script>
 
 </head>
 
@@ -256,8 +258,49 @@
         <!-- Row 3 END-->
 
 
+        <div class="col-span-3">
+            <h2 class="text-2xl sm:text-3xl font-bold my-8">
+                World Map:
+            </h2>
+        </div>
 
 
+        <!-- Row 4 -->
+        <!-- Row 4 - Cell 1 -->
+        <div class="mapTooltip" style="opacity:0"></div>
+        <div class="col-span-2">
+            <div id="mapContainer" class="mx-auto">
+                <svg id="mapSvg" class="w-full h-[500px] block rounded-lg"></svg>
+            </div>
+        </div>
+        <!-- Row 4 - Cell 1 END -->
+
+        <!-- Row 4 - Cell 2 -->
+        <div class="col-span-1 p-6 rounded-lg">
+            <h2 class="text-2xl font-bold mb-4 text-white">
+                Met Collection Objects by Country
+            </h2>
+            <p class="text-white leading-relaxed">
+                This map shows the number of objects in the Metropolitan Museum of Art’s collection by country of
+                origin.
+                A geographic layout makes it easy to place the data in a real-world context and quickly compare patterns
+                across different regions of the world.
+            </p>
+            <p class="mt-4 text-white leading-relaxed">
+                Countries are colored using a logarithmic purple scale, where darker shades indicate higher object
+                counts.
+                Hover over a country to see the exact number of objects, and use zoom and pan interactions to explore
+                specific regions in more detail.
+            </p>
+            <div class="mt-4">
+                <button id="resetZoomBtn"
+                    class="bg-indigo-500 hover:bg-indigo-400 px-4 py-2 rounded-md text-sm font-semibold">
+                    Reset
+                </button>
+            </div>
+        </div>
+        <!-- Row 4 - Cell 2 END -->
+        <!-- Row 4 END-->
 
 
         <div id="timelineChart" class="mx-auto fixed justify-center col-span-3 w-full fixed bg-white dark:bg-gray-900"
@@ -362,6 +405,9 @@
 
     <!-- word cloud script -->
     <script type="module" src="scripts/wordCloud.js"></script>
+
+    <!-- map script -->
+    <script type="module" src="scripts/map.js"></script>
 
 
 </body>
