@@ -1,5 +1,3 @@
-// scripts/heatmap.js
-
 // Dimensions and margins
 const margin = { top: 80, right: 40, bottom: 80, left: 150 };
 const width  = 900 - margin.left - margin.right;
@@ -16,12 +14,12 @@ const svg = d3.select("#heatmapChart")
 // Tooltip
 const tooltip = d3.select("#tooltipHeatmap");
 
-// Dropdowns (already in your index.html)
+// Dropdowns
 const centurySelect = d3.select("#centurySelect");
 const nationalitySelect = d3.select("#nationalitySelect");
 const resetBtn = d3.select("#resetFilters");
 
-// Load your preprocessed CSV
+// Load preprocessed CSV
 d3.csv("data/heatmap_data.csv", d => {
   return {
     nationality: d.Artist_Nationality,
@@ -31,9 +29,6 @@ d3.csv("data/heatmap_data.csv", d => {
   };
 }).then(data => {
 
-  // -----------------------------
-  // NEW: Dropdown option filling
-  // -----------------------------
   const allCenturies = Array.from(new Set(data.map(d => d.century)))
     .filter(v => v !== null && v !== undefined && String(v).trim() !== "")
     .sort((a, b) => parseInt(a) - parseInt(b));
@@ -42,7 +37,6 @@ d3.csv("data/heatmap_data.csv", d => {
     .filter(v => v !== null && v !== undefined && String(v).trim() !== "")
     .sort(d3.ascending);
 
-  // Keep existing "All" option from HTML, add the rest
   centurySelect.selectAll("option.centOpt")
     .data(allCenturies)
     .join("option")
@@ -57,12 +51,8 @@ d3.csv("data/heatmap_data.csv", d => {
     .attr("value", d => d)
     .text(d => d);
 
-  // Use global maxCount so legend & colors are comparable across filters
   const maxCountGlobal = d3.max(data, d => d.count);
 
-  // -----------------------------
-  // NEW: Filter + Render functions
-  // -----------------------------
   function getSelectedValues(selectSel) {
     const node = selectSel.node();
     return Array.from(node.selectedOptions).map(o => o.value);
@@ -87,10 +77,8 @@ d3.csv("data/heatmap_data.csv", d => {
   }
 
   function render(currData) {
-    // Clear everything inside the translated <g> (keeps the SVG frame)
     svg.selectAll("*").remove();
 
-    // Handle "no data" after filtering
     if (currData.length === 0) {
       svg.append("text")
         .attr("x", width / 2)
@@ -122,7 +110,7 @@ d3.csv("data/heatmap_data.csv", d => {
       .range([0, height])
       .padding(0.05);
 
-    // Color scale (stable across filters)
+    // Color scale
     const color = d3.scaleSequential()
       .domain([0, maxCountGlobal])
       .interpolator(d3.interpolateViridis);
@@ -277,9 +265,8 @@ d3.csv("data/heatmap_data.csv", d => {
       .text("Number of Objects");
   }
 
-  // -----------------------------
-  // NEW: Wire dropdown events
-  // -----------------------------
+
+  // Wire dropdown events
   function update() {
     render(getFilteredData());
   }
@@ -300,3 +287,4 @@ d3.csv("data/heatmap_data.csv", d => {
   // Initial render
   update();
 });
+
