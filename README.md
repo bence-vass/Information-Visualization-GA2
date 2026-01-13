@@ -5,4 +5,9 @@
 - Project demo and visualizations: [https://bence-vass.github.io/Information-Visualization-A3/](https://bence-vass.github.io/Information-Visualization-A3/)
 
 
-![Screenshot](screenshot.png)
+![Screenshot](screenshots/screenshot1.png)
+![Screenshot](screenshots/screenshot2.png)
+![Screenshot](screenshots/screenshot3.png)
+![Screenshot](screenshots/screenshot4.png)
+![Screenshot](screenshots/screenshot5.png)
+![Screenshot](screenshots/screenshot6.png)
