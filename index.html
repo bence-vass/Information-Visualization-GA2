@@ -254,6 +254,35 @@
             <div id="wordCloud" class="w-full overflow-x-auto flex gap-6"></div>
         </div>
         <!-- Row 3 END-->
+		
+		<!-- Heatmap Row -->
+		<div class="col-span-3 p-6 rounded-lg bg-gray-800/40">
+			<h2 class="text-2xl font-bold mb-4 text-white">Nationality × Century Heatmap</h2>
+
+			<!-- Filters -->
+			<div class="controls mb-4">
+				<label>
+					Century:
+					<select id="centurySelect" multiple size = "6">
+						<option value="all">All</option>
+					</select>
+				</label>
+
+				<label>
+					Artist Nationality:
+					<select id="nationalitySelect" multiple size="8">
+						<option value="all">All</option>
+					</select>
+				</label>
+
+				<button id="resetFilters" type="button">Reset</button>
+			</div>
+
+			<!-- Chart -->
+			<div id="heatmapChart" class="w-full overflow-x-auto"></div>
+		</div>
+		<!-- Heatmap Row END -->
+
 
 
 
@@ -271,6 +300,12 @@
     <div id="tooltipDeptPie"
         style="position: absolute; text-align: center; padding: 12px; font: 14px sans-serif; background: rgba(0, 0, 0, 0.9); color: white; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 0.3s; max-width: 250px; z-index: 1000;">
     </div>
+	
+	<!-- Heatmap Tooltip -->
+	<div id="tooltipHeatmap"
+		style="position: absolute; text-align: left; padding: 12px; font: 14px sans-serif; background: rgba(0, 0, 0, 0.9); color: white; border-radius: 8px; pointer-events: none; opacity: 0; transition: opacity 0.2s; max-width: 280px; z-index: 1000;">
+	</div>
+
 
     <div id="loadingChart" class="bg-gray-900 justify-center flex-row mt-8 absolute w-full "
         style="height: 100%; top: 10rem">
@@ -362,6 +397,10 @@
 
     <!-- word cloud script -->
     <script type="module" src="scripts/wordCloud.js"></script>
+	
+	<!-- heatmap script -->
+	<script type="module" src="scripts/heatmap.js"></script>
+
 
 
 </body>
