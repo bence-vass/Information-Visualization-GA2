@@ -2,7 +2,7 @@
 
 - Publicly available dataset from The Metropolitan Museum of Art Open Access collection:  
   [https://github.com/metmuseum/openaccess](https://github.com/metmuseum/openaccess)
-- Project demo and visualizations: [https://bence-vass.github.io/Information-Visualization-A3/](https://bence-vass.github.io/Information-Visualization-A3/)
+- Project demo and visualizations: **needs to be deployed through GitHub Pages by the repo owner.**
 
 
 ![Screenshot](screenshots/screenshot1.png)
