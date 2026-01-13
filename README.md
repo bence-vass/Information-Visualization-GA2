@@ -1,4 +1,4 @@
-## Individual Assignment 3: D3 Implementation
+## Group Assignment: D3 Implementation
 
 - Publicly available dataset from The Metropolitan Museum of Art Open Access collection:  
   [https://github.com/metmuseum/openaccess](https://github.com/metmuseum/openaccess)
