@@ -24,4 +24,27 @@
       font-size: 12px;
       alignment-baseline: middle;
     }
+/* Heatmap filter controls */
+.controls{
+  display:flex;
+  gap:16px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.controls label{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  font-size: 14px;
+  color: rgba(255,255,255,0.9);
+}
+
+.controls select, .controls button{
+  padding:6px 10px;
+  border-radius:8px;
+  background: rgba(17, 24, 39, 0.9);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.18);
+}
 
