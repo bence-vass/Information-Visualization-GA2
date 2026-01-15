@@ -5,6 +5,7 @@
     flex: none
 }
 
+/* World map  */
 .mapSvg {
       background: #ffffff;
       border-radius: 8px;
@@ -24,6 +25,7 @@
       font-size: 12px;
       alignment-baseline: middle;
     }
+
 /* Heatmap filter controls */
 .controls{
   display:flex;
@@ -47,4 +49,3 @@
   color: white;
   border: 1px solid rgba(255,255,255,0.18);
 }
-
