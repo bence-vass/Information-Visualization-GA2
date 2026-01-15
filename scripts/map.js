@@ -1,5 +1,5 @@
 Promise.all([
-    d3.json("../preprocessing/country_counts.json"),
+    d3.json("/data/country_counts.json"),
     d3.json("https://unpkg.com/world-atlas@2/countries-110m.json")
 ]).then(([countryCountsObj, world]) => {
 
