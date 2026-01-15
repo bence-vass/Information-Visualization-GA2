@@ -134,6 +134,7 @@ d3.csv("data/heatmap_data.csv", d => {
       .attr("y", -40)
       .attr("text-anchor", "middle")
       .style("font-size", "18px")
+      .attr("fill", "white")
       .text("Artist Nationality over Time (by Century)");
 
     // X label
@@ -142,6 +143,7 @@ d3.csv("data/heatmap_data.csv", d => {
       .attr("y", height + 60)
       .attr("text-anchor", "middle")
       .style("font-size", "14px")
+      .attr("fill", "white")
       .text("Century");
 
     // Y label
@@ -151,6 +153,7 @@ d3.csv("data/heatmap_data.csv", d => {
       .attr("y", -110)
       .attr("text-anchor", "middle")
       .style("font-size", "14px")
+      .attr("fill", "white")
       .text("Artist Nationality");
 
     // Draw rectangles (cells)
@@ -217,7 +220,7 @@ d3.csv("data/heatmap_data.csv", d => {
     const legendHeight = 12;
 
     const legendSvg = svg.append("g")
-      .attr("transform", `translate(${width - legendWidth}, ${-20})`);
+      .attr("transform", `translate(${width - legendWidth}, ${-30})`);
 
     const legendScale = d3.scaleLinear()
       .domain([0, maxCountGlobal])
@@ -259,9 +262,10 @@ d3.csv("data/heatmap_data.csv", d => {
 
     legendSvg.append("text")
       .attr("x", legendWidth / 2)
-      .attr("y", -5)
+      .attr("y", -10)
       .attr("text-anchor", "middle")
       .style("font-size", "10px")
+      .attr("fill", "white")
       .text("Number of Objects");
   }
 
