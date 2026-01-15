@@ -121,8 +121,12 @@ const brushEnded = (event) => {
         .append("svg")
         .attr("viewBox", [0, 0, width, height])
     // .attr("style", "border:5px solid red; background-color:white");
-
-
+    
+    // Background for timeline (important for light mode)
+    svg.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "#1f2937");
 
     x = d3.scaleTime()
         .domain([new Date(minX, 1, 1), new Date(maxX, 11, 31) - 1])
