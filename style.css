@@ -5,6 +5,11 @@
     flex: none
 }
 
+#charts, header {
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
 /* World map  */
 .mapSvg {
       background: #ffffff;
