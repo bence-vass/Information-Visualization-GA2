@@ -26,10 +26,18 @@ const getWordcloudData = (selectedData, randN) => {
 
     const filteredData = selectedData.filter(v => v["isHighlight"])
     
+    // Return empty array if no data available
+    if (!filteredData || filteredData.length === 0) {
+        return [];
+    }
+    
     const randSet = new Set()
     const randRows = []
+    
+    // Limit randN to available data to avoid infinite loop
+    const maxItems = Math.min(randN, filteredData.length);
 
-    while(randSet.size < randN){
+    while(randSet.size < maxItems){
         const randIdx = Math.floor(Math.random() * filteredData.length)
         if(!randSet.has(randIdx)){
             randSet.add(randIdx)
@@ -45,9 +53,21 @@ const getWordcloudData = (selectedData, randN) => {
 export const updateWordCloud = (data) => {
 
     svg.selectAll("*").remove()
+    
+    // Handle empty data
+    if (!data || data.length === 0) {
+        console.log("No data available for word cloud");
+        return;
+    }
 
     const cloudData = getWordcloudData(data, 150)
     console.log("cloudData", cloudData)
+    
+    // Handle empty cloud data
+    if (!cloudData || cloudData.length === 0) {
+        console.log("No highlighted data available for word cloud");
+        return;
+    }
 
     const layout = d3.layout.cloud()
         .size([width, height])
