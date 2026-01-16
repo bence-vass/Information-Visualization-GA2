@@ -259,7 +259,7 @@
 
         <!-- Row world map -->
         <div class="col-span-3">
-            <h2 class="text-2xl sm:text-3xl font-bold my-8">
+            <h2 class="text-2xl sm:text-3xl font-bold mt-8">
                 World Map:
             </h2>
         </div>
@@ -300,12 +300,25 @@
         <!-- Row world map - Cell 2 END -->
         <!-- Row world map END-->
 
+        <div class="col-span-3">
+            <br> <!-- Spacer -->
+        </div>
+
+
         <!-- Heatmap Row -->
-        <div class="col-span-3 p-6 rounded-lg bg-gray-800/40">
+        <div class="col-span-1 p-6 rounded-lg">
             <h2 class="text-2xl font-bold mb-4 text-white">Nationality × Century Heatmap</h2>
+            <p class="text-white leading-relaxed">
+                This heatmap visualizes the distribution of artworks by artist nationality across different centuries.
+                Each cell represents the percentage share of artworks from a specific nationality in a given century.
+            </p>
+            <p class="mt-4 text-white leading-relaxed">
+                Use the filters below to explore specific time periods or nationalities. The color intensity indicates
+                the concentration of artworks, helping identify patterns in the museum's collection over time.
+            </p>
 
             <!-- Filters -->
-            <div class="controls mb-4">
+            <div class="controls mt-6">
                 <label>
                     Century:
                     <select id="centurySelect" multiple size="6">
@@ -322,7 +335,9 @@
 
                 <button id="resetFilters" type="button">Reset</button>
             </div>
+        </div>
 
+        <div class="col-span-2">
             <!-- Chart -->
             <div id="heatmapChart" class="w-full overflow-x-auto"></div>
         </div>
